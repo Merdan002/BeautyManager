@@ -1,0 +1,48 @@
+﻿@model BeautyManager.Models.Personel
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-user-edit me-2" style="color:#E91E63"></i>Personel Düzenle</h4>
+        <small>Personel bilgilerini güncelleyin</small>
+    </div>
+    <a href="/Personel" class="btn-edit"><i class="fas fa-arrow-left me-2"></i>Geri Dön</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="form-card">
+            <form method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Ad</label>
+                        <input asp-for="Ad" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Soyad</label>
+                        <input asp-for="Soyad" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Telefon</label>
+                        <input asp-for="Telefon" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Uzmanlık</label>
+                        <input asp-for="Uzmanlik" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Durum</label>
+                        <select asp-for="Aktif" class="form-select">
+                            <option value="true">Aktif</option>
+                            <option value="false">Pasif</option>
+                        </select>
+                    </div>
+                    <div class="col-12 d-flex gap-3">
+                        <button type="submit" class="btn-save"><i class="fas fa-save me-2"></i>Güncelle</button>
+                        <a href="/Personel" class="btn-delete">İptal</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

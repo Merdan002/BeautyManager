@@ -1,0 +1,102 @@
+﻿@model BeautyManager.Models.Musteri
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-user me-2" style="color:#E91E63"></i>@Model.Ad @Model.Soyad</h4>
+        <small>Müşteri detayları</small>
+    </div>
+    <a href="/Musteri" class="btn-edit"><i class="fas fa-arrow-left me-2"></i>Geri Dön</a>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="table-card">
+            <h6><i class="fas fa-info-circle me-2" style="color:#E91E63"></i>Bilgiler</h6>
+            <div style="color:#9090b0; font-size:0.85rem; line-height:2">
+                <div><i class="fas fa-user me-2"></i><span style="color:white">@Model.Ad @Model.Soyad</span></div>
+                <div><i class="fas fa-phone me-2"></i><span style="color:#ce93d8">@Model.Telefon</span></div>
+                <div><i class="fas fa-envelope me-2"></i><span style="color:white">@Model.Email</span></div>
+                <div><i class="fas fa-calendar me-2"></i><span style="color:white">@Model.KayitTarihi.ToString("dd MMM yyyy")</span></div>
+                @if (!string.IsNullOrEmpty(Model.Notlar))
+                {
+                    <div class="mt-3 p-3" style="background:#0f0f1a; border-radius:10px; color:#9090b0">
+                        @Model.Notlar
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <!-- RANDEVU GEÇMİŞİ -->
+        <div class="table-card mb-3">
+            <h6><i class="fas fa-calendar-check me-2" style="color:#E91E63"></i>Randevu Geçmişi (@Model.Randevular.Count)</h6>
+            @if (!Model.Randevular.Any())
+            {
+                <div class="empty-state"><i class="fas fa-calendar-times"></i><p>Randevu yok</p></div>
+            }
+            else
+            {
+                <table class="table">
+                    <thead>
+                        <tr><th>Tarih</th><th>Personel</th><th>İşlem</th><th>Ücret</th><th>Durum</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.Randevular.OrderByDescending(r => r.RandevuTarihi))
+                        {
+                            <tr>
+                                <td>@r.RandevuTarihi.ToString("dd MMM yyyy")</td>
+                                <td>@r.Personel?.Ad</td>
+                                <td>@r.IslemAciklamasi</td>
+                                <td style="color:#4ade80">@r.Ucret.ToString("C0")</td>
+                                <td>
+                                    @if (r.Durum == "Tamamlandı")
+                                    {
+                                        <span class="badge-tamamlandi">✓</span>
+                                    }
+                                    else if (r.Durum == "İptal")
+                                    {
+
+                                        <span class="badge-iptal">✕</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge-bekliyor">⏳</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <!-- LAZER SEANSLAR -->
+        <div class="table-card">
+            <h6><i class="fas fa-bolt me-2" style="color:#E91E63"></i>Lazer Seansları (@Model.LazerSeanslar.Count)</h6>
+            @if (!Model.LazerSeanslar.Any())
+            {
+                <div class="empty-state"><i class="fas fa-bolt"></i><p>Lazer seans yok</p></div>
+            }
+            else
+            {
+                @foreach (var s in Model.LazerSeanslar)
+                {
+                    <div class="mb-3 p-3" style="background:#0f0f1a; border-radius:10px;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span style="color:white; font-weight:600">@s.Bolge</span>
+                            <span class="badge-tamamlandi">@s.Durum</span>
+                        </div>
+                        <div class="progress mb-2">
+                            <div class="progress-bar progress-bar-pink"
+                                 style="width:@(s.ToplamSeans > 0 ? (s.TamamlananSeans * 100 / s.ToplamSeans) : 0)%">
+                            </div>
+                        </div>
+                        <small style="color:#6060a0">@s.TamamlananSeans / @s.ToplamSeans seans</small>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,44 @@
+﻿@model BeautyManager.Models.Musteri
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-user-plus me-2" style="color:#E91E63"></i>Yeni Müşteri</h4>
+        <small>Yeni müşteri kaydı oluşturun</small>
+    </div>
+    <a href="/Musteri" class="btn-edit"><i class="fas fa-arrow-left me-2"></i>Geri Dön</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="form-card">
+            <form method="post">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Ad</label>
+                        <input asp-for="Ad" class="form-control" placeholder="Ad" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Soyad</label>
+                        <input asp-for="Soyad" class="form-control" placeholder="Soyad" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Telefon</label>
+                        <input asp-for="Telefon" class="form-control" placeholder="05XX XXX XX XX" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input asp-for="Email" class="form-control" placeholder="ornek@email.com" />
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Notlar</label>
+                        <textarea asp-for="Notlar" class="form-control" rows="3" placeholder="Müşteri hakkında notlar..."></textarea>
+                    </div>
+                    <div class="col-12 d-flex gap-3">
+                        <button type="submit" class="btn-save"><i class="fas fa-save me-2"></i>Kaydet</button>
+                        <a href="/Musteri" class="btn-delete">İptal</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,70 @@
+﻿@model List<BeautyManager.Models.Personel>
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-user-tie me-2" style="color:#E91E63"></i>Personel</h4>
+        <small>Çalışanları buradan yönetin</small>
+    </div>
+    <a href="/Personel/Ekle" class="btn-new"><i class="fas fa-plus me-2"></i>Yeni Personel</a>
+</div>
+
+<div class="table-card">
+    <h6><i class="fas fa-list me-2" style="color:#E91E63"></i>@Model.Count personel</h6>
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="fas fa-user-tie"></i>
+            <p>Henüz personel eklenmemiş</p>
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>Telefon</th>
+                    <th>Uzmanlık</th>
+                    <th>Bu Ay Randevu</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td style="color:white; font-weight:600">@p.Ad @p.Soyad</td>
+                        <td style="color:#ce93d8">@p.Telefon</td>
+                        <td style="color:#9090b0">@p.Uzmanlik</td>
+                        <td style="color:#60a5fa">
+                            @p.Randevular.Count(r => r.RandevuTarihi.Month == DateTime.Now.Month)
+                        </td>
+                        <td>
+                            @if (p.Aktif)
+                            {
+                                <span class="badge-tamamlandi">✓ Aktif</span>
+                            }
+                            else
+                            {
+
+                                <span class="badge-iptal">✕ Pasif</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="/Personel/Duzenle/@p.Id" class="btn-edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/Personel/Sil/@p.Id" class="btn-delete"
+                                       onclick="return confirm('Personeli silmek istediğine emin misin?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

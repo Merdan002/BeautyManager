@@ -1,0 +1,151 @@
+﻿ @model List<BeautyManager.Models.Randevu>
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-calendar-check me-2" style="color:#E91E63"></i>Randevular</h4>
+        <small>Tüm randevuları buradan yönetin</small>
+    </div>
+    <a href="/Randevu/Ekle" class="btn-new"><i class="fas fa-plus me-2"></i>Yeni Randevu</a>
+</div>
+
+<!-- FİLTRELEME -->
+<div class="form-card mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label">Personel</label>
+            <select name="personel" class="form-select">
+                <option value="">Tüm Personel</option>
+                @foreach (var p in ViewBag.Personeller as List<BeautyManager.Models.Personel>)
+                {
+                    if (ViewBag.SecilenPersonel == p.Id.ToString())
+                    {
+                        <option value="@p.Id" selected>@p.Ad @p.Soyad</option>
+                    }
+                    else
+                    {
+                        <option value="@p.Id">@p.Ad @p.Soyad</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Durum</label>
+            <select name="durum" class="form-select">
+                <option value="">Tüm Durumlar</option>
+                @if (ViewBag.SecilenDurum == "Bekliyor")
+                {
+                    <option value="Bekliyor" selected>Bekliyor</option>
+                }
+                else
+                {
+                    <option value="Bekliyor">Bekliyor</option>
+                }
+
+                @if (ViewBag.SecilenDurum == "Tamamlandı")
+                {
+                    <option value="Tamamlandı" selected>Tamamlandı</option>
+                }
+                else
+                {
+                    <option value="Tamamlandı">Tamamlandı</option>
+                }
+
+                @if (ViewBag.SecilenDurum == "İptal")
+                {
+                    <option value="İptal" selected>İptal</option>
+                }
+                else
+                {
+                    <option value="İptal">İptal</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Tarih</label>
+            <input type="date" name="tarih" class="form-control" value="@ViewBag.SecilenTarih" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end gap-2">
+            <button type="submit" class="btn-save">Filtrele</button>
+            <a href="/Randevu" class="btn-edit">Temizle</a>
+        </div>
+    </form>
+</div>
+<!-- RANDEVU LİSTESİ -->
+<div class="table-card">
+    <h6><i class="fas fa-list me-2" style="color:#E91E63"></i>@Model.Count randevu listeleniyor</h6>
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <p>Randevu bulunamadı</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tarih / Saat</th>
+                        <th>Müşteri</th>
+                        <th>Personel</th>
+                        <th>İşlem</th>
+                        <th>Ücret</th>
+                        <th>Durum</th>
+                        <th>Ödeme</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div style="color:white">@r.RandevuTarihi.ToString("dd MMM yyyy")</div>
+                                <small style="color:#6060a0">@r.RandevuTarihi.ToString("HH:mm")</small>
+                            </td>
+                            <td>
+                                <div style="color:white">@r.Musteri?.Ad @r.Musteri?.Soyad</div>
+                                <small style="color:#6060a0">@r.Musteri?.Telefon</small>
+                            </td>
+                            <td style="color:#ce93d8">@r.Personel?.Ad @r.Personel?.Soyad</td>
+                            <td>@r.IslemAciklamasi</td>
+                            <td style="color:#4ade80">@r.Ucret.ToString("C0")</td>
+                            <td>
+                                @if (r.Durum == "Tamamlandı")
+                                { <span class="badge-tamamlandi">✓ Tamamlandı</span> }
+                                else if (r.Durum == "İptal")
+                                { <span class="badge-iptal">✕ İptal</span> }
+                                else
+                                { <span class="badge-bekliyor">⏳ Bekliyor</span> }
+                            </td>
+                            <td>
+                                @if (r.OdendiMi)
+                                { <span class="badge-odendi">✓ Ödendi</span> }
+                                else
+                                { <span class="badge-bekleyen">✕ Bekliyor</span> }
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <a href="/Randevu/DurumGuncelle/@r.Id?durum=Tamamlandı" class="btn-success-soft" title="Tamamlandı">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    <a href="/Randevu/OdemeGuncelle/@r.Id" class="btn-edit" title="Ödeme">
+                                        <i class="fas fa-money-bill"></i>
+                                    </a>
+                                    <a href="/Randevu/Duzenle/@r.Id" class="btn-edit" title="Düzenle">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="/Randevu/Sil/@r.Id" class="btn-delete" title="Sil"
+                                       onclick="return confirm('Randevuyu silmek istediğine emin misin?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
