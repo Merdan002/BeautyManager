@@ -34,31 +34,39 @@
                 @foreach (var p in Model)
                 {
                     <tr>
-                        <td style="color:white; font-weight:600">@p.Ad @p.Soyad</td>
-                        <td style="color:#ce93d8">@p.Telefon</td>
-                        <td style="color:#9090b0">@p.Uzmanlik</td>
-                        <td style="color:#60a5fa">
-                            @p.Randevular.Count(r => r.RandevuTarihi.Month == DateTime.Now.Month)
+                        <td>
+                            <div style="color:#f0a0c0; font-weight:600">@p.Ad @p.Soyad</div>
+                        </td>
+                        <td style="color:#60a5fa">@p.Telefon</td>
+                        <td>
+                            <span style="background:rgba(156,39,176,0.15); color:#ce93d8; padding:4px 10px; border-radius:20px; font-size:0.8rem">
+                                @p.Uzmanlik
+                            </span>
+                        </td>
+                        <td>
+                            <span style="background:rgba(13,110,253,0.15); color:#60a5fa; padding:4px 10px; border-radius:20px; font-size:0.8rem">
+                                @p.Randevular.Count(r => r.RandevuTarihi.Month == DateTime.Now.Month) randevu
+                            </span>
                         </td>
                         <td>
                             @if (p.Aktif)
                             {
-                                <span class="badge-tamamlandi">✓ Aktif</span>
+                                <span class="badge-tamamlandi"><i class="fas fa-circle me-1"></i>Aktif</span>
                             }
                             else
                             {
 
-                                <span class="badge-iptal">✕ Pasif</span>
+                                <span class="badge-iptal"><i class="fas fa-circle me-1"></i>Pasif</span>
                             }
                         </td>
                         <td>
                             <div class="d-flex gap-1">
                                 <a href="/Personel/Duzenle/@p.Id" class="btn-edit">
-                                    <i class="fas fa-edit"></i>
+                                    <i class="fas fa-edit me-1"></i>Düzenle
                                 </a>
                                 <a href="/Personel/Sil/@p.Id" class="btn-delete"
                                        onclick="return confirm('Personeli silmek istediğine emin misin?')">
-                                    <i class="fas fa-trash"></i>
+                                    <i class="fas fa-trash me-1"></i>Sil
                                 </a>
                             </div>
                         </td>

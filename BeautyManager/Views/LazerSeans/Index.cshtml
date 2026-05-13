@@ -1,0 +1,491 @@
+﻿ @model List<BeautyManager.Models.LazerSeans>
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-bolt me-2" style="color:#E91E63"></i>Lazer Seansları</h4>
+        <small>Seans takibi, ödeme ve planlama</small>
+    </div>
+    <a href="/LazerSeans/Ekle" class="btn-new"><i class="fas fa-plus me-2"></i>Yeni Seans Paketi</a>
+</div>
+
+<!-- ÖZET KARTLAR -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-pink"><i class="fas fa-bolt"></i></div>
+            <h3>@Model.Count</h3>
+            <p>Toplam Paket</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-orange"><i class="fas fa-spinner"></i></div>
+            <h3>@Model.Count(s => s.Durum == "Devam Ediyor")</h3>
+            <p>Devam Eden</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-green"><i class="fas fa-check-circle"></i></div>
+            <h3>@Model.Count(s => s.Durum == "Tamamlandı")</h3>
+            <p>Tamamlanan</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-red"><i class="fas fa-money-bill-wave"></i></div>
+            <h3>@((Model.Sum(s => s.ToplamUcret) - Model.Sum(s => s.OdenenUcret)).ToString("C0"))</h3>
+            <p>Bekleyen Ödeme</p>
+        </div>
+    </div>
+</div>
+
+<!-- FİLTRELEME -->
+<div class="form-card mb-4">
+    <form method="get" class="d-flex gap-3 align-items-end flex-wrap">
+        <div>
+            <label class="form-label">Durum Filtrele</label>
+            <div class="d-flex gap-2">
+                <a href="/LazerSeans" class="@(ViewBag.SecilenDurum == null ? "btn-save" : "btn-edit")">
+                    <i class="fas fa-list me-1"></i>Tümü
+                </a>
+                <a href="/LazerSeans?durum=Devam Ediyor" class="@(ViewBag.SecilenDurum == "Devam Ediyor" ? "btn-save" : "btn-edit")">
+                    <i class="fas fa-spinner me-1"></i>Devam Eden
+                </a>
+                <a href="/LazerSeans?durum=Tamamlandı" class="@(ViewBag.SecilenDurum == "Tamamlandı" ? "btn-save" : "btn-edit")">
+                    <i class="fas fa-check me-1"></i>Tamamlanan
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- SEANS LİSTESİ -->
+@if (!Model.Any())
+{
+    <div class="table-card">
+        <div class="empty-state">
+            <i class="fas fa-bolt"></i>
+            <h5 style="color:#6060a0">Seans paketi bulunamadı</h5>
+            <a href="/LazerSeans/Ekle" class="btn-save mt-3 d-inline-block">
+                <i class="fas fa-plus me-2"></i>İlk Paketi Ekle
+            </a>
+        </div>
+    </div>
+}
+
+@foreach (var s in Model)
+{
+    var yuzde = s.ToplamSeans > 0 ? (s.TamamlananSeans * 100 / s.ToplamSeans) : 0;
+    var odemeYuzde = s.ToplamUcret > 0 ? (int)((s.OdenenUcret * 100) / s.ToplamUcret) : 0;
+    var kalanSeans = s.ToplamSeans - s.TamamlananSeans;
+    var kalanOdeme = s.ToplamUcret - s.OdenenUcret;
+
+    <div class="lazer-card @(s.Durum == "Tamamlandı" ? "lazer-tamamlandi" : "")">
+
+        <!-- HEADER -->
+        <div class="lazer-header">
+            <div class="d-flex align-items-center gap-3">
+                <div class="lazer-avatar">
+                    @s.Musteri?.Ad?.Substring(0, 1)@s.Musteri?.Soyad?.Substring(0, 1)
+                </div>
+                <div>
+                    <div class="lazer-isim">@s.Musteri?.Ad @s.Musteri?.Soyad</div>
+                    <div class="lazer-telefon"><i class="fas fa-phone me-1"></i>@s.Musteri?.Telefon</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="lazer-bolge"><i class="fas fa-bolt me-1"></i>@s.Bolge</span>
+                @if (s.Durum == "Tamamlandı")
+                {
+                    <span class="lazer-badge-tamamlandi"><i class="fas fa-check-circle me-1"></i>Tamamlandı</span>
+                }
+                else if (kalanSeans == 1)
+                {
+                    <span class="lazer-badge-uyari"><i class="fas fa-exclamation-circle me-1"></i>Son Seans!</span>
+                }
+                else
+                {
+                    <span class="lazer-badge-devam"><i class="fas fa-spinner me-1"></i>Devam Ediyor</span>
+                }
+            </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="lazer-body">
+
+            <!-- SEANS İLERLEME -->
+            <div class="lazer-section">
+                <div class="lazer-section-title">
+                    <i class="fas fa-layer-group me-2"></i>Seans İlerlemesi
+                </div>
+                <div class="lazer-progress-row">
+                    @for (int i = 1; i <= s.ToplamSeans; i++)
+                    {
+                        <div class="seans-dot @(i <= s.TamamlananSeans ? "seans-dot-done" : "seans-dot-empty")"
+                             title="@i. Seans @(i <= s.TamamlananSeans ? "✓" : "")">
+                            @if (i <= s.TamamlananSeans)
+                            { <i class="fas fa-check"></i> }
+                            else
+                            { @i }
+                        </div>
+                    }
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                    <small style="color:#9090b0">@s.TamamlananSeans seans tamamlandı</small>
+                    <small style="color:@(kalanSeans == 0 ? "#4ade80" : kalanSeans == 1 ? "#ffb74d" : "#f06292")">
+                        @(kalanSeans == 0 ? "✓ Tüm seanslar tamamlandı" : $"{kalanSeans} seans kaldı")
+                    </small>
+                </div>
+            </div>
+
+            <!-- ÖDEME DURUMU -->
+            <div class="lazer-section">
+                <div class="lazer-section-title">
+                    <i class="fas fa-money-bill-wave me-2"></i>Ödeme Durumu
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span style="color:#4ade80; font-weight:600">@s.OdenenUcret.ToString("C0") ödendi</span>
+                    <span style="color:@(kalanOdeme == 0 ? "#4ade80" : "#f87171"); font-weight:600">
+                        @(kalanOdeme == 0 ? "✓ Tamamlandı" : $"{kalanOdeme.ToString("C0")} kaldı")
+                    </span>
+                </div>
+                <div class="progress mb-1" style="height:10px">
+                    <div class="progress-bar"
+                         style="width:@odemeYuzde%; background:linear-gradient(135deg,#4ade80,#22c55e); border-radius:10px">
+                    </div>
+                </div>
+                <small style="color:#6060a0">Toplam paket ücreti: @s.ToplamUcret.ToString("C0")</small>
+            </div>
+
+            <!-- SONRAKI SEANS -->
+            <div class="lazer-section">
+                <div class="lazer-section-title">
+                    <i class="fas fa-calendar-alt me-2"></i>Planlama
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <div style="color:#9090b0; font-size:0.78rem">Başlangıç</div>
+                        <div style="color:white; font-weight:600">@s.BaslangicTarihi.ToString("dd MMM yyyy")</div>
+                    </div>
+                    <i class="fas fa-arrow-right" style="color:#2a2a4a"></i>
+                    <div>
+                        <div style="color:#9090b0; font-size:0.78rem">Sonraki Seans</div>
+                        @if (s.SonrakiSeansTarihi.HasValue)
+                        {
+                            var gunFarki = (s.SonrakiSeansTarihi.Value - DateTime.Today).Days;
+                            <div style="color:@(gunFarki <= 1 ? "#ffb74d" : "#a78bfa"); font-weight:600">
+                                @s.SonrakiSeansTarihi.Value.ToString("dd MMM yyyy")
+                                @if (gunFarki == 0)
+                                { <span style="color:#ffb74d">(Bugün!)</span> }
+                                else if (gunFarki == 1)
+                                { <span style="color:#ffb74d">(Yarın!)</span> }
+                                else if (gunFarki > 0)
+                                { <span style="color:#6060a0">(@gunFarki gün sonra)</span> }
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="color:#4040a0">Belirlenmedi</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER BUTONLAR -->
+        <div class="lazer-footer">
+            @if (s.TamamlananSeans < s.ToplamSeans)
+            {
+                <a href="/LazerSeans/SeansTamamla/@s.Id" class="lazer-btn lazer-btn-green"
+                   onclick="return confirm('@s.TamamlananSeans + 1. seans tamamlandı olarak işaretlensin mi?')">
+                    <i class="fas fa-check me-2"></i>Seans Tamamla (@(s.TamamlananSeans + 1)/@s.ToplamSeans)
+                </a>
+            }
+            else
+            {
+                <span class="lazer-btn lazer-btn-disabled">
+                    <i class="fas fa-check-double me-2"></i>Tüm Seanslar Tamamlandı
+                </span>
+            }
+
+            @if (kalanOdeme > 0)
+            {
+                <button class="lazer-btn lazer-btn-blue" onclick="odemeModal(@s.Id, @kalanOdeme)" type="button">
+                    <i class="fas fa-money-bill me-2"></i>Ödeme Al (@kalanOdeme.ToString("C0"))
+                </button>
+            }
+            else
+            {
+                <span class="lazer-btn lazer-btn-disabled">
+                    <i class="fas fa-check me-2"></i>Ödeme Tamamlandı
+                </span>
+            }
+
+            <button class="lazer-btn lazer-btn-purple" onclick="tarihModal(@s.Id)" type="button">
+                <i class="fas fa-calendar me-2"></i>Seans Tarihle
+            </button>
+
+            <a href="/LazerSeans/Sil/@s.Id" class="lazer-btn lazer-btn-red"
+               onclick="return confirm('Bu seans paketini silmek istediğine emin misin?')">
+                <i class="fas fa-trash me-2"></i>Sil
+            </a>
+        </div>
+    </div>
+}
+
+<!-- ÖDEME MODAL -->
+<div id="odemeModalDiv" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(0,0,0,0.8); z-index:999; align-items:center; justify-content:center;">
+    <div style="background:#1a1a2e; border:1px solid #2a2a4a; border-radius:20px; padding:35px; width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+        <h5 style="color:white; margin-bottom:5px"><i class="fas fa-money-bill-wave me-2" style="color:#4ade80"></i>Ödeme Al</h5>
+        <p style="color:#6060a0; font-size:0.85rem; margin-bottom:25px">Kalan ödeme miktarını girin</p>
+        <form method="post" id="odemeForm" action="/LazerSeans/OdemeEkle">
+            <input type="hidden" name="id" id="odemeId" />
+            <div class="mb-3">
+                <label class="form-label">Tutar (₺)</label>
+                <input type="number" name="tutar" step="0.01" class="form-control" id="odemeTutar" placeholder="0.00" />
+                <small id="odemeKalanText" style="color:#6060a0"></small>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn-save" style="flex:1"><i class="fas fa-check me-2"></i>Kaydet</button>
+                <button type="button" class="btn-delete" onclick="closeModal()">İptal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TARİH MODAL -->
+<div id="tarihModalDiv" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(0,0,0,0.8); z-index:999; align-items:center; justify-content:center;">
+    <div style="background:#1a1a2e; border:1px solid #2a2a4a; border-radius:20px; padding:35px; width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+        <h5 style="color:white; margin-bottom:5px"><i class="fas fa-calendar-alt me-2" style="color:#a78bfa"></i>Sonraki Seans Tarihi</h5>
+        <p style="color:#6060a0; font-size:0.85rem; margin-bottom:25px">Bir sonraki seans tarihini belirleyin</p>
+        <form method="post" id="tarihForm" action="/LazerSeans/TarihGuncelle">
+            <input type="hidden" name="id" id="tarihId" />
+            <div class="mb-3">
+                <label class="form-label">Tarih</label>
+                <input type="date" name="tarih" class="form-control" />
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn-save" style="flex:1"><i class="fas fa-check me-2"></i>Kaydet</button>
+                <button type="button" class="btn-delete" onclick="closeTarihModal()">İptal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .lazer-card {
+        background: #1a1a2e;
+        border: 1px solid #2a2a4a;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .lazer-card:hover { border-color: #E91E63; transform: translateY(-2px); }
+    .lazer-tamamlandi { opacity: 0.7; }
+    .lazer-tamamlandi:hover { border-color: #4ade80; }
+
+    .lazer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        border-bottom: 1px solid #2a2a4a;
+        background: linear-gradient(135deg, rgba(233,30,99,0.05), rgba(156,39,176,0.05));
+    }
+
+    .lazer-avatar {
+        width: 48px; height: 48px;
+        background: linear-gradient(135deg, #E91E63, #9C27B0);
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-weight: 800; font-size: 1rem;
+    }
+
+    .lazer-isim { color: white; font-weight: 700; font-size: 1.05rem; }
+    .lazer-telefon { color: #60a5fa; font-size: 0.83rem; margin-top: 3px; }
+
+    .lazer-bolge {
+        background: rgba(233,30,99,0.15);
+        color: #f06292;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .lazer-badge-devam {
+        background: rgba(255,152,0,0.15);
+        color: #ffb74d;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+    }
+
+    .lazer-badge-tamamlandi {
+        background: rgba(25,135,84,0.15);
+        color: #4ade80;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+    }
+
+    .lazer-badge-uyari {
+        background: rgba(255,152,0,0.2);
+        color: #ffb74d;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        animation: pulse 1.5s infinite;
+    }
+
+    @@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+    .lazer-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0;
+    }
+
+    .lazer-section {
+        padding: 20px 25px;
+        border-right: 1px solid #2a2a4a;
+    }
+
+    .lazer-section:last-child { border-right: none; }
+
+    .lazer-section-title {
+        color: #6060a0;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        font-weight: 600;
+    }
+
+    .lazer-progress-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .seans-dot {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: transform 0.2s;
+        cursor: default;
+    }
+
+    .seans-dot:hover { transform: scale(1.1); }
+
+    .seans-dot-done {
+        background: linear-gradient(135deg, #E91E63, #9C27B0);
+        color: white;
+    }
+
+    .seans-dot-empty {
+        background: #0f0f1a;
+        border: 1px solid #2a2a4a;
+        color: #4040a0;
+    }
+
+    .lazer-footer {
+        padding: 15px 25px;
+        border-top: 1px solid #2a2a4a;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        background: rgba(0,0,0,0.2);
+    }
+
+    .lazer-btn {
+        padding: 9px 18px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .lazer-btn:hover { transform: translateY(-1px); opacity: 0.9; }
+
+    .lazer-btn-green {
+        background: linear-gradient(135deg, rgba(25,135,84,0.3), rgba(34,197,94,0.3));
+        color: #4ade80;
+        border: 1px solid rgba(74,222,128,0.3);
+    }
+
+    .lazer-btn-blue {
+        background: linear-gradient(135deg, rgba(13,110,253,0.3), rgba(96,165,250,0.3));
+        color: #60a5fa;
+        border: 1px solid rgba(96,165,250,0.3);
+    }
+
+    .lazer-btn-purple {
+        background: linear-gradient(135deg, rgba(156,39,176,0.3), rgba(167,139,250,0.3));
+        color: #ce93d8;
+        border: 1px solid rgba(167,139,250,0.3);
+    }
+
+    .lazer-btn-red {
+        background: rgba(220,53,69,0.15);
+        color: #f87171;
+        border: 1px solid rgba(248,113,113,0.2);
+    }
+
+    .lazer-btn-disabled {
+        background: rgba(255,255,255,0.05);
+        color: #4040a0;
+        border: 1px solid #2a2a4a;
+        cursor: default;
+    }
+
+    .lazer-btn-disabled:hover { transform: none; opacity: 1; }
+</style>
+
+<script>
+    function odemeModal(id, kalan) {
+        document.getElementById('odemeId').value = id;
+        document.getElementById('odemeTutar').value = kalan;
+        document.getElementById('odemeKalanText').textContent = 'Kalan tutar: ₺' + kalan;
+        document.getElementById('odemeModalDiv').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('odemeModalDiv').style.display = 'none';
+    }
+
+    function tarihModal(id) {
+        document.getElementById('tarihId').value = id;
+        document.getElementById('tarihModalDiv').style.display = 'flex';
+    }
+
+    function closeTarihModal() {
+        document.getElementById('tarihModalDiv').style.display = 'none';
+    }
+
+    // Modal dışına tıklayınca kapat
+    document.getElementById('odemeModalDiv').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    document.getElementById('tarihModalDiv').addEventListener('click', function(e) {
+        if (e.target === this) closeTarihModal();
+    });
+</script>

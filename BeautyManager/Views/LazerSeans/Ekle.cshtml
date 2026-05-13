@@ -1,0 +1,54 @@
+﻿@model BeautyManager.Models.LazerSeans
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-bolt me-2" style="color:#E91E63"></i>Yeni Lazer Seans Paketi</h4>
+        <small>Yeni seans paketi oluşturun</small>
+    </div>
+    <a href="/LazerSeans" class="btn-edit"><i class="fas fa-arrow-left me-2"></i>Geri Dön</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="form-card">
+            <form method="post">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Müşteri</label>
+                        <select asp-for="MusteriId" class="form-select">
+                            <option value="">-- Müşteri Seç --</option>
+                            @foreach (var m in ViewBag.Musteriler as List<BeautyManager.Models.Musteri>)
+                            {
+                                <option value="@m.Id">@m.Ad @m.Soyad — @m.Telefon</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Bölge</label>
+                        <input asp-for="Bolge" class="form-control" placeholder="Örn: Bacak, Kol, Bikini" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Toplam Seans Sayısı</label>
+                        <input asp-for="ToplamSeans" type="number" class="form-control" placeholder="8" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Toplam Ücret (₺)</label>
+                        <input asp-for="ToplamUcret" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input asp-for="BaslangicTarihi" type="date" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Sonraki Seans Tarihi</label>
+                        <input asp-for="SonrakiSeansTarihi" type="date" class="form-control" />
+                    </div>
+                    <div class="col-12 d-flex gap-3">
+                        <button type="submit" class="btn-save"><i class="fas fa-save me-2"></i>Kaydet</button>
+                        <a href="/LazerSeans" class="btn-delete">İptal</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,524 @@
+﻿ @model List<BeautyManager.Models.MalzemeStok>
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-box me-2" style="color:#E91E63"></i>Stok Yönetimi</h4>
+        <small>@DateTime.Now.ToString("dd MMMM yyyy") — Malzeme ve ürün takibi</small>
+    </div>
+    <a href="/Stok/Ekle" class="btn-new"><i class="fas fa-plus me-2"></i>Yeni Ürün Ekle</a>
+</div>
+
+<!-- ÖZET KARTLAR -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-blue"><i class="fas fa-boxes"></i></div>
+            <h3>@Model.Count</h3>
+            <p>Toplam Ürün Çeşidi</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-red"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3>@Model.Count(s => s.Miktar <= s.MinimumStok)</h3>
+            <p>Kritik Stok</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-green"><i class="fas fa-lira-sign"></i></div>
+            <h3>@Model.Sum(s => s.Miktar * s.BirimFiyat).ToString("C0")</h3>
+            <p>Toplam Stok Değeri</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-purple"><i class="fas fa-tags"></i></div>
+            <h3>@Model.Select(s => s.Kategori).Distinct().Count()</h3>
+            <p>Kategori Sayısı</p>
+        </div>
+    </div>
+</div>
+
+<!-- KRİTİK STOK UYARILARI -->
+@{
+    var dusukStoklar = Model.Where(s => s.Miktar <= s.MinimumStok).ToList();
+}
+@if (dusukStoklar.Any())
+{
+    <div class="kritik-panel mb-4">
+        <div class="kritik-panel-header">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Kritik Stok Uyarısı — <strong>@dusukStoklar.Count ürün</strong> minimum seviyenin altında!
+            <span style="float:right; font-size:0.8rem; opacity:0.8">Hemen stok güncelle →</span>
+        </div>
+        <div class="kritik-panel-body">
+            @foreach (var s in dusukStoklar)
+            {
+                <div class="kritik-item">
+                    <div class="kritik-ikon">
+                        @if (s.Miktar == 0)
+                        { <i class="fas fa-times"></i> }
+                        else
+                        { <i class="fas fa-exclamation"></i> }
+                    </div>
+                    <div style="flex:1">
+                        <div style="color:white; font-weight:700; font-size:0.9rem">@s.UrunAdi</div>
+                        <div style="color:#6060a0; font-size:0.75rem">@s.Kategori</div>
+                    </div>
+                    <div class="text-end me-3">
+                        <div style="color:@(s.Miktar == 0 ? "#f87171" : "#ffb74d"); font-weight:800; font-size:1.2rem">@s.Miktar</div>
+                        <div style="color:#6060a0; font-size:0.72rem">min: @s.MinimumStok @s.Birim</div>
+                    </div>
+                    <button class="kritik-btn" onclick="stokModal(@s.Id, '@s.UrunAdi', @s.Miktar)">
+                        <i class="fas fa-plus me-1"></i>Stok Ekle
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- KATEGORİ FİLTRE + ARAMA -->
+<div class="form-card mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            <small style="color:#6060a0; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px">Filtre:</small>
+            <a href="/Stok" class="stok-filter-btn @(ViewBag.SecilenKategori == null ? "stok-filter-active" : "")">
+                <i class="fas fa-th me-1"></i>Tümü (@Model.Count)
+            </a>
+            @foreach (var kat in ViewBag.Kategoriler as List<string>)
+            {
+                var katSayi = Model.Count(s => s.Kategori == kat);
+                <a href="/Stok?kategori=@kat" class="stok-filter-btn @(ViewBag.SecilenKategori == kat ? "stok-filter-active" : "")">
+                    @kat (@katSayi)
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- STOK KARTLARI -->
+@if (!Model.Any())
+{
+    <div class="table-card">
+        <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h5 style="color:#6060a0">Ürün bulunamadı</h5>
+            <a href="/Stok/Ekle" class="btn-save mt-3 d-inline-block">
+                <i class="fas fa-plus me-2"></i>İlk Ürünü Ekle
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var s in Model)
+        {
+            var dusuk = s.Miktar <= s.MinimumStok;
+            var bitti = s.Miktar == 0;
+
+            // Sadece sayı bazlı yüzde hesabı
+            var stokYuzde = s.MinimumStok > 0
+                ? Math.Min((int)((double)s.Miktar / (s.MinimumStok * 3.0) * 100), 100)
+                : (s.Miktar > 0 ? 100 : 0);
+
+            var barRenk = bitti ? "linear-gradient(135deg,#6060a0,#4040a0)"
+                        : dusuk ? "linear-gradient(135deg,#f87171,#ef4444)"
+                        : stokYuzde < 60 ? "linear-gradient(135deg,#ffb74d,#f59e0b)"
+                        : "linear-gradient(135deg,#E91E63,#9C27B0)";
+
+            var stokRenk = bitti ? "#6060a0" : dusuk ? "#f87171" : "#4ade80";
+
+            <div class="col-xl-3 col-md-4 col-sm-6">
+                <div class="stok-kart @(bitti ? "stok-bitti" : dusuk ? "stok-kart-dusuk" : "")">
+
+                    <!-- DURUM ŞERİDİ -->
+                    <div class="stok-durum-seridi" style="background:@barRenk"></div>
+
+                    <!-- HEADER -->
+                    <div class="stok-kart-header">
+                        <div class="stok-kart-ikon" style="background:@barRenk">
+                            @if (s.Kategori == "Boya") { <i class="fas fa-palette"></i> }
+                            else if (s.Kategori == "Şampuan") { <i class="fas fa-pump-soap"></i> }
+                            else if (s.Kategori == "Lazer Jeli") { <i class="fas fa-bolt"></i> }
+                            else if (s.Kategori == "Aksesuar") { <i class="fas fa-cut"></i> }
+                            else if (s.Kategori == "Krem") { <i class="fas fa-hand-sparkles"></i> }
+                            else { <i class="fas fa-box"></i> }
+                        </div>
+                        <div style="flex:1; min-width:0">
+                            <div style="color:white; font-weight:700; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">
+                                @s.UrunAdi
+                            </div>
+                            <span class="stok-kategori-badge">@s.Kategori</span>
+                        </div>
+                        @if (bitti)
+                        {
+                            <span class="stok-durum-badge stok-bitti-badge">Bitti</span>
+                        }
+                        else if (dusuk)
+                        {
+                            <span class="stok-durum-badge stok-dusuk-badge">Kritik</span>
+                        }
+                    </div>
+
+                    <!-- STOK MİKTAR GÖSTERGE -->
+                    <div class="stok-kart-body">
+
+                        <!-- ANA SAYAÇ -->
+                        <div class="stok-sayac-area">
+                            <div>
+                                <div style="color:#6060a0; font-size:0.72rem; text-transform:uppercase; letter-spacing:1px">Mevcut Stok</div>
+                                <div style="color:@stokRenk; font-size:2.2rem; font-weight:900; line-height:1.1">
+                                    @s.Miktar
+                                    <span style="font-size:0.85rem; font-weight:400; color:#6060a0">@s.Birim</span>
+                                </div>
+                            </div>
+                            <div class="stok-cember">
+                                <svg viewBox="0 0 36 36" width="64" height="64">
+                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                          fill="none" stroke="#1e1e3a" stroke-width="3"/>
+                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                          fill="none" stroke="@(bitti ? "#4040a0" : dusuk ? "#f87171" : "#E91E63")"
+                                          stroke-width="3"
+                                          stroke-dasharray="@stokYuzde, 100"
+                                          stroke-linecap="round"/>
+                                    <text x="18" y="20.5" text-anchor="middle"
+                                          style="font-size:8px; font-weight:700; fill:@stokRenk">
+                                        %@stokYuzde
+                                    </text>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- STOK BAR -->
+                        <div class="progress mb-3" style="height:6px; background:#0f0f1a">
+                            <div class="progress-bar" style="width:@stokYuzde%; background:@barRenk; border-radius:10px; transition:width 0.5s"></div>
+                        </div>
+
+                        <!-- MIN / FİYAT BİLGİ -->
+                        <div class="stok-info-row">
+                            <div class="stok-info-item">
+                                <div class="stok-info-label">Min. Stok</div>
+                                <div class="stok-info-value">@s.MinimumStok @s.Birim</div>
+                            </div>
+                            <div class="stok-info-divider"></div>
+                            <div class="stok-info-item">
+                                <div class="stok-info-label">Birim Fiyat</div>
+                                <div class="stok-info-value" style="color:#60a5fa">@s.BirimFiyat.ToString("C0")</div>
+                            </div>
+                            <div class="stok-info-divider"></div>
+                            <div class="stok-info-item">
+                                <div class="stok-info-label">Toplam Değer</div>
+                                <div class="stok-info-value" style="color:#4ade80">@((s.Miktar * s.BirimFiyat).ToString("C0"))</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FOOTER BUTONLAR -->
+                    <div class="stok-kart-footer">
+                        <button class="stok-kart-btn stok-btn-green" onclick="stokModal(@s.Id, '@s.UrunAdi', @s.Miktar)">
+                            <i class="fas fa-plus-minus me-1"></i>Güncelle
+                        </button>
+                        <a href="/Stok/Duzenle/@s.Id" class="stok-kart-btn stok-btn-blue">
+                            <i class="fas fa-edit me-1"></i>Düzenle
+                        </a>
+                        <a href="/Stok/Sil/@s.Id" class="stok-kart-btn stok-btn-red"
+                           onclick="return confirm('Bu ürünü silmek istediğine emin misin?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- STOK GÜNCELLEME MODAL -->
+<div id="stokModalDiv" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(0,0,0,0.85); z-index:999; align-items:center; justify-content:center;">
+    <div class="stok-modal-kart">
+        <div class="stok-modal-header">
+            <div>
+                <h5 style="color:white; margin:0"><i class="fas fa-box me-2" style="color:#E91E63"></i>Stok Güncelle</h5>
+                <div id="stokUrunAdi" style="color:#a78bfa; font-weight:700; margin-top:4px"></div>
+            </div>
+            <button onclick="closeStokModal()" style="background:none; border:none; color:#6060a0; font-size:1.3rem; cursor:pointer">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="stok-modal-body">
+            <div class="stok-mevcut-goster">
+                <div style="color:#6060a0; font-size:0.8rem">Mevcut Stok</div>
+                <div id="stokMevcutSayi" style="color:white; font-size:2rem; font-weight:800"></div>
+            </div>
+            <form method="post" action="/Stok/StokGuncelle">
+                <input type="hidden" name="id" id="stokId" />
+                <label class="form-label">Miktar Değişimi</label>
+                <input type="number" name="miktar" class="form-control mb-3" id="stokMiktar" placeholder="+ ekle veya - çıkar" />
+                <div class="stok-hizli-row mb-4">
+                    <button type="button" class="stok-hizli-btn stok-hizli-green" onclick="hizliEkle(1)">+1</button>
+                    <button type="button" class="stok-hizli-btn stok-hizli-green" onclick="hizliEkle(5)">+5</button>
+                    <button type="button" class="stok-hizli-btn stok-hizli-green" onclick="hizliEkle(10)">+10</button>
+                    <button type="button" class="stok-hizli-btn stok-hizli-green" onclick="hizliEkle(25)">+25</button>
+                    <button type="button" class="stok-hizli-btn stok-hizli-red" onclick="hizliEkle(-1)">-1</button>
+                    <button type="button" class="stok-hizli-btn stok-hizli-red" onclick="hizliEkle(-5)">-5</button>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-save" style="flex:1; padding:13px">
+                        <i class="fas fa-check me-2"></i>Güncelle
+                    </button>
+                    <button type="button" class="btn-delete" style="padding:13px 20px" onclick="closeStokModal()">
+                        İptal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* KRİTİK PANEL */
+    .kritik-panel {
+        background: #1a1a2e;
+        border: 1px solid rgba(220,53,69,0.35);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .kritik-panel-header {
+        background: linear-gradient(135deg, rgba(220,53,69,0.2), rgba(239,68,68,0.1));
+        color: #f87171;
+        padding: 13px 20px;
+        font-size: 0.88rem;
+    }
+
+    .kritik-panel-body { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+
+    .kritik-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(220,53,69,0.07);
+        border: 1px solid rgba(220,53,69,0.15);
+        border-radius: 10px;
+        padding: 10px 14px;
+    }
+
+    .kritik-ikon {
+        width: 32px; height: 32px;
+        background: rgba(220,53,69,0.2);
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        color: #f87171; font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .kritik-btn {
+        background: rgba(233,30,99,0.2);
+        color: #f06292;
+        border: 1px solid rgba(233,30,99,0.3);
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .kritik-btn:hover { background: rgba(233,30,99,0.35); }
+
+    /* FİLTRE */
+    .stok-filter-btn {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        text-decoration: none;
+        background: #0f0f1a;
+        border: 1px solid #2a2a4a;
+        color: #6060a0;
+        transition: all 0.2s;
+    }
+
+    .stok-filter-btn:hover { color: white; border-color: #E91E63; }
+    .stok-filter-active { background: linear-gradient(135deg,rgba(233,30,99,0.2),rgba(156,39,176,0.2)); border-color: #E91E63 !important; color: white !important; }
+
+    /* STOK KARTLARI */
+    .stok-kart {
+        background: #1a1a2e;
+        border: 1px solid #2a2a4a;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.25s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .stok-kart:hover { border-color: #E91E63; transform: translateY(-4px); box-shadow: 0 12px 35px rgba(233,30,99,0.15); }
+    .stok-kart-dusuk { border-color: rgba(248,113,113,0.4) !important; }
+    .stok-bitti { border-color: rgba(100,100,160,0.4) !important; opacity: 0.75; }
+
+    .stok-durum-seridi { height: 3px; width: 100%; }
+
+    .stok-kart-header {
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #2a2a4a;
+    }
+
+    .stok-kart-ikon {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    .stok-kategori-badge {
+        background: rgba(156,39,176,0.15);
+        color: #ce93d8;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        display: inline-block;
+        margin-top: 3px;
+    }
+
+    .stok-durum-badge {
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .stok-dusuk-badge { background: rgba(248,113,113,0.15); color: #f87171; }
+    .stok-bitti-badge  { background: rgba(100,100,160,0.15); color: #8080b0; }
+
+    .stok-kart-body { padding: 14px 16px; flex: 1; }
+
+    .stok-sayac-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .stok-cember { flex-shrink: 0; }
+
+    .stok-info-row {
+        display: flex;
+        gap: 0;
+        background: #0f0f1a;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #2a2a4a;
+    }
+
+    .stok-info-item { flex: 1; padding: 8px 10px; text-align: center; }
+    .stok-info-label { color: #4040a0; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stok-info-value { color: white; font-weight: 600; font-size: 0.85rem; margin-top: 2px; }
+    .stok-info-divider { width: 1px; background: #2a2a4a; }
+
+    .stok-kart-footer {
+        padding: 10px 14px;
+        border-top: 1px solid #2a2a4a;
+        display: flex;
+        gap: 6px;
+        background: rgba(0,0,0,0.2);
+    }
+
+    .stok-kart-btn {
+        padding: 7px 10px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stok-kart-btn:hover { transform: translateY(-1px); }
+    .stok-btn-green { background: rgba(25,135,84,0.15); color: #4ade80; border-color: rgba(74,222,128,0.2); flex: 1; }
+    .stok-btn-blue  { background: rgba(13,110,253,0.15); color: #60a5fa; border-color: rgba(96,165,250,0.2); }
+    .stok-btn-red   { background: rgba(220,53,69,0.15);  color: #f87171; border-color: rgba(248,113,113,0.2); }
+
+    /* MODAL */
+    .stok-modal-kart {
+        background: #1a1a2e;
+        border: 1px solid #2a2a4a;
+        border-radius: 20px;
+        width: 420px;
+        box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+        overflow: hidden;
+    }
+
+    .stok-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 22px 25px 18px;
+        border-bottom: 1px solid #2a2a4a;
+        background: linear-gradient(135deg, rgba(233,30,99,0.05), rgba(156,39,176,0.05));
+    }
+
+    .stok-modal-body { padding: 22px 25px; }
+
+    .stok-mevcut-goster {
+        background: #0f0f1a;
+        border: 1px solid #2a2a4a;
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .stok-hizli-row { display: flex; gap: 6px; }
+
+    .stok-hizli-btn {
+        flex: 1;
+        padding: 8px 4px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .stok-hizli-btn:hover { transform: translateY(-1px); }
+    .stok-hizli-green { background: rgba(25,135,84,0.2); color: #4ade80; border-color: rgba(74,222,128,0.2); }
+    .stok-hizli-red   { background: rgba(220,53,69,0.15); color: #f87171; border-color: rgba(248,113,113,0.2); }
+</style>
+
+<script>
+    function stokModal(id, urunAdi, mevcut) {
+        document.getElementById('stokId').value = id;
+        document.getElementById('stokUrunAdi').textContent = urunAdi;
+        document.getElementById('stokMevcutSayi').textContent = mevcut;
+        document.getElementById('stokMiktar').value = '';
+        document.getElementById('stokModalDiv').style.display = 'flex';
+    }
+
+    function closeStokModal() {
+        document.getElementById('stokModalDiv').style.display = 'none';
+    }
+
+    function hizliEkle(miktar) {
+        document.getElementById('stokMiktar').value = miktar;
+    }
+
+    document.getElementById('stokModalDiv').addEventListener('click', function(e) {
+        if (e.target === this) closeStokModal();
+    });
+</script>
