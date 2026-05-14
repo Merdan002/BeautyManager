@@ -1,0 +1,226 @@
+﻿ @model List<BeautyManager.Models.FiyatListesi>
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-tags me-2" style="color:#E91E63"></i>Fiyat Listesi</h4>
+        <small>Hizmet fiyatlarını buradan yönetin</small>
+    </div>
+    <a href="/Fiyat/Ekle" class="btn-new"><i class="fas fa-plus me-2"></i>Yeni Hizmet Ekle</a>
+</div>
+
+<!-- ÖZET KARTLAR -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-pink"><i class="fas fa-list"></i></div>
+            <h3>@ViewBag.ToplamIslem</h3>
+            <p>Toplam Hizmet</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-green"><i class="fas fa-check-circle"></i></div>
+            <h3>@ViewBag.AktifIslem</h3>
+            <p>Aktif Hizmet</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-purple"><i class="fas fa-tags"></i></div>
+            <h3>@Model.Select(f => f.Kategori).Distinct().Count()</h3>
+            <p>Kategori</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon icon-blue"><i class="fas fa-lira-sign"></i></div>
+            <h3>@(Model.Any() && Model.Any(f => f.Aktif) ? Model.Where(f => f.Aktif).Average(f => f.Fiyat).ToString("C0") : "—")</h3>
+            <p>Ortalama Fiyat</p>
+        </div>
+    </div>
+</div>
+
+<!-- KATEGORİ FİLTRE -->
+<div class="form-card mb-4">
+    <div class="d-flex gap-2 flex-wrap align-items-center">
+        <small style="color:#6060a0; font-size:0.75rem; text-transform:uppercase; letter-spacing:1px">Kategori:</small>
+        <a href="/Fiyat" class="stok-filter-btn @(ViewBag.SecilenKategori == null ? "stok-filter-active" : "")">
+            <i class="fas fa-th me-1"></i>Tümü
+        </a>
+        @if (ViewBag.Kategoriler != null)
+        {
+            foreach (var kat in ViewBag.Kategoriler as List<string>)
+            {
+                <a href="/Fiyat?kategori=@kat" class="stok-filter-btn @(ViewBag.SecilenKategori == kat ? "stok-filter-active" : "")">
+                    @kat
+                </a>
+            }
+        }
+    </div>
+</div>
+
+<!-- KATEGORİ BAZLI LİSTE -->
+@if (!Model.Any())
+{
+    <div class="table-card">
+        <div class="empty-state">
+            <i class="fas fa-tags"></i>
+            <h5 style="color:#6060a0">Hizmet bulunamadı</h5>
+            <a href="/Fiyat/Ekle" class="btn-save mt-3 d-inline-block">
+                <i class="fas fa-plus me-2"></i>İlk Hizmeti Ekle
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    foreach (var kat in Model.Select(f => f.Kategori).Distinct().OrderBy(k => k))
+    {
+        var katIslemleri = Model.Where(f => f.Kategori == kat).ToList();
+        <div class="fiyat-grup mb-4">
+            <div class="fiyat-grup-header">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="fiyat-grup-ikon">
+                        @if (kat == "Saç") { <i class="fas fa-cut"></i> }
+                        else if (kat == "Lazer Epilasyon") { <i class="fas fa-bolt"></i> }
+                        else if (kat == "Cilt Bakım") { <i class="fas fa-spa"></i> }
+                        else if (kat == "Makyaj") { <i class="fas fa-magic"></i> }
+                        else { <i class="fas fa-star"></i> }
+                    </div>
+                    <div>
+                        <div style="color:white; font-weight:700; font-size:1rem">@kat</div>
+                        <div style="color:#6060a0; font-size:0.78rem">@katIslemleri.Count hizmet</div>
+                    </div>
+                </div>
+                <div style="color:#a78bfa; font-size:0.85rem">
+                    En düşük: <strong>@katIslemleri.Min(f => f.Fiyat).ToString("C0")</strong>
+                    — En yüksek: <strong>@katIslemleri.Max(f => f.Fiyat).ToString("C0")</strong>
+                </div>
+            </div>
+            <div class="fiyat-grup-body">
+                @foreach (var f in katIslemleri.OrderBy(f => f.Fiyat))
+                {
+                    <div class="fiyat-item @(!f.Aktif ? "fiyat-pasif" : "")">
+                        <div class="d-flex align-items-center gap-3" style="flex:1">
+                            <div class="fiyat-aktif-dot @(f.Aktif ? "dot-aktif" : "dot-pasif")"></div>
+                            <div>
+                                <div style="color:@(f.Aktif ? "white" : "#4040a0"); font-weight:600">@f.IslemAdi</div>
+                                @if (f.Sure > 0)
+                                {
+                                    <small style="color:#6060a0">
+                                        <i class="fas fa-clock me-1"></i>@f.Sure dakika
+                                    </small>
+                                }
+                            </div>
+                        </div>
+                        <div class="fiyat-tutar">@f.Fiyat.ToString("C0")</div>
+                        <div class="d-flex gap-2 ms-3">
+                            <a href="/Fiyat/AktifToggle/@f.Id" class="fiyat-btn @(f.Aktif ? "fiyat-btn-orange" : "fiyat-btn-green")"
+                               title="@(f.Aktif ? "Pasif Yap" : "Aktif Yap")">
+                                @if (f.Aktif) { <i class="fas fa-eye-slash"></i> }
+                                else { <i class="fas fa-eye"></i> }
+                            </a>
+                            <a href="/Fiyat/Duzenle/@f.Id" class="fiyat-btn fiyat-btn-blue">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="/Fiyat/Sil/@f.Id" class="fiyat-btn fiyat-btn-red"
+                               onclick="return confirm('Bu hizmeti silmek istediğine emin misin?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+<style>
+    .fiyat-grup {
+        background: #1a1a2e;
+        border: 1px solid #2a2a4a;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+
+    .fiyat-grup:hover { border-color: rgba(233,30,99,0.4); }
+
+    .fiyat-grup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #2a2a4a;
+        background: linear-gradient(135deg, rgba(233,30,99,0.06), rgba(156,39,176,0.06));
+    }
+
+    .fiyat-grup-ikon {
+        width: 42px; height: 42px;
+        background: linear-gradient(135deg, #E91E63, #9C27B0);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 1rem;
+    }
+
+    .fiyat-grup-body { padding: 8px 0; }
+
+    .fiyat-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        border-bottom: 1px solid #1e1e3a;
+        transition: background 0.15s;
+    }
+
+    .fiyat-item:last-child { border-bottom: none; }
+    .fiyat-item:hover { background: rgba(255,255,255,0.02); }
+    .fiyat-pasif { opacity: 0.5; }
+
+    .fiyat-aktif-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .dot-aktif { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+    .dot-pasif { background: #4040a0; }
+
+    .fiyat-tutar {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #f06292;
+        white-space: nowrap;
+        margin-left: auto;
+    }
+
+    .fiyat-btn {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .fiyat-btn:hover { transform: translateY(-1px); }
+    .fiyat-btn-blue   { background: rgba(13,110,253,0.15);  color: #60a5fa; border-color: rgba(96,165,250,0.2); }
+    .fiyat-btn-red    { background: rgba(220,53,69,0.15);   color: #f87171; border-color: rgba(248,113,113,0.2); }
+    .fiyat-btn-orange { background: rgba(255,152,0,0.15);   color: #ffb74d; border-color: rgba(255,183,77,0.2); }
+    .fiyat-btn-green  { background: rgba(25,135,84,0.15);   color: #4ade80; border-color: rgba(74,222,128,0.2); }
+
+    .stok-filter-btn {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        text-decoration: none;
+        background: #0f0f1a;
+        border: 1px solid #2a2a4a;
+        color: #6060a0;
+        transition: all 0.2s;
+    }
+
+    .stok-filter-btn:hover { color: white; border-color: #E91E63; }
+    .stok-filter-active { background: linear-gradient(135deg,rgba(233,30,99,0.2),rgba(156,39,176,0.2)); border-color: #E91E63 !important; color: white !important; }
+</style>

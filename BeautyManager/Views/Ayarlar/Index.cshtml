@@ -1,0 +1,246 @@
+﻿@model BeautyManager.Models.Kullanici
+
+<div class="topbar">
+    <div>
+        <h4><i class="fas fa-cog me-2" style="color:#E91E63"></i>Ayarlar</h4>
+        <small>Hesap ve uygulama ayarları</small>
+    </div>
+</div>
+
+<!-- MESAJLAR -->
+@if (TempData["Hata"] != null)
+{
+    <div class="alert-mesaj alert-hata mb-4">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Hata"]
+    </div>
+}
+@if (TempData["Basari"] != null)
+{
+    <div class="alert-mesaj alert-basari mb-4">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Basari"]
+    </div>
+}
+
+<div class="row g-4">
+
+    <!-- PROFİL BİLGİLERİ -->
+    <div class="col-md-6">
+        <div class="ayar-kart">
+            <div class="ayar-kart-header">
+                <div class="ayar-kart-ikon icon-pink">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div style="color:white; font-weight:700">Profil Bilgileri</div>
+                    <div style="color:#6060a0; font-size:0.82rem">Ad soyad güncelle</div>
+                </div>
+            </div>
+            <div class="ayar-kart-body">
+                <form method="post" action="/Ayarlar/ProfilGuncelle">
+                    <div class="mb-3">
+                        <label class="form-label">Kullanıcı Adı</label>
+                        <input type="text" name="yeniKullaniciAdi" class="form-control"
+                               value="@Model?.KullaniciAdi" placeholder="Kullanıcı adı" />
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Ad Soyad</label>
+                        <input type="text" name="adSoyad" class="form-control"
+                               value="@Model?.AdSoyad" placeholder="Ad Soyad" />
+                    </div>
+                    <button type="submit" class="btn-save w-100">
+                        <i class="fas fa-save me-2"></i>Profili Güncelle
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ŞİFRE DEĞİŞTİR -->
+    <div class="col-md-6">
+        <div class="ayar-kart">
+            <div class="ayar-kart-header">
+                <div class="ayar-kart-ikon icon-purple">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div>
+                    <div style="color:white; font-weight:700">Şifre Değiştir</div>
+                    <div style="color:#6060a0; font-size:0.82rem">Güvenlik için şifreni güncelle</div>
+                </div>
+            </div>
+            <div class="ayar-kart-body">
+                <form method="post" action="/Ayarlar/SifreDegistir">
+                    <div class="mb-3">
+                        <label class="form-label">Mevcut Şifre</label>
+                        <div class="sifre-input-wrap">
+                            <input type="password" name="eskiSifre" class="form-control" id="eskiSifre" placeholder="••••••••" />
+                            <button type="button" class="sifre-goz" onclick="toggleSifre('eskiSifre')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Yeni Şifre</label>
+                        <div class="sifre-input-wrap">
+                            <input type="password" name="yeniSifre" class="form-control" id="yeniSifre" placeholder="••••••••" />
+                            <button type="button" class="sifre-goz" onclick="toggleSifre('yeniSifre')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Yeni Şifre Tekrar</label>
+                        <div class="sifre-input-wrap">
+                            <input type="password" name="yeniSifreTekrar" class="form-control" id="yeniSifreTekrar" placeholder="••••••••" />
+                            <button type="button" class="sifre-goz" onclick="toggleSifre('yeniSifreTekrar')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-save w-100">
+                        <i class="fas fa-shield-alt me-2"></i>Şifreyi Güncelle
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SALON BİLGİLERİ -->
+    <div class="col-md-12">
+        <div class="ayar-kart">
+            <div class="ayar-kart-header">
+                <div class="ayar-kart-ikon icon-blue">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div>
+                    <div style="color:white; font-weight:700">Sistem Bilgileri</div>
+                    <div style="color:#6060a0; font-size:0.82rem">BeautyManager hakkında</div>
+                </div>
+            </div>
+            <div class="ayar-kart-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="sistem-bilgi-kart">
+                            <div style="color:#6060a0; font-size:0.75rem">Versiyon</div>
+                            <div style="color:white; font-weight:700">v1.0.0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="sistem-bilgi-kart">
+                            <div style="color:#6060a0; font-size:0.75rem">Platform</div>
+                            <div style="color:white; font-weight:700">ASP.NET Core 8</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="sistem-bilgi-kart">
+                            <div style="color:#6060a0; font-size:0.75rem">Veritabanı</div>
+                            <div style="color:white; font-weight:700">SQLite</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="sistem-bilgi-kart">
+                            <div style="color:#6060a0; font-size:0.75rem">Günlük Kapasite</div>
+                            <div style="color:white; font-weight:700">10 Randevu</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .ayar-kart {
+        background: #1a1a2e;
+        border: 1px solid #2a2a4a;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+
+        .ayar-kart:hover {
+            border-color: rgba(233,30,99,0.3);
+        }
+
+    .ayar-kart-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 18px 22px;
+        border-bottom: 1px solid #2a2a4a;
+        background: linear-gradient(135deg, rgba(233,30,99,0.05), rgba(156,39,176,0.05));
+    }
+
+    .ayar-kart-ikon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .ayar-kart-body {
+        padding: 22px;
+    }
+
+    .sifre-input-wrap {
+        position: relative;
+    }
+
+        .sifre-input-wrap .form-control {
+            padding-right: 45px;
+        }
+
+    .sifre-goz {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6060a0;
+        cursor: pointer;
+        padding: 0;
+        transition: color 0.2s;
+    }
+
+        .sifre-goz:hover {
+            color: #E91E63;
+        }
+
+    .sistem-bilgi-kart {
+        background: #0f0f1a;
+        border: 1px solid #2a2a4a;
+        border-radius: 10px;
+        padding: 14px 16px;
+    }
+
+    .alert-mesaj {
+        padding: 13px 18px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .alert-hata {
+        background: rgba(220,53,69,0.12);
+        border: 1px solid rgba(220,53,69,0.25);
+        color: #f87171;
+    }
+
+    .alert-basari {
+        background: rgba(25,135,84,0.12);
+        border: 1px solid rgba(25,135,84,0.25);
+        color: #4ade80;
+    }
+</style>
+
+<script>
+    function toggleSifre(id) {
+        var input = document.getElementById(id);
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
+</script>

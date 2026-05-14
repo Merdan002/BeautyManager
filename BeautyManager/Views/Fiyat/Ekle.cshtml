@@ -1,0 +1,55 @@
+﻿<div class="topbar">
+    <div>
+        <h4><i class="fas fa-plus-circle me-2" style="color:#E91E63"></i>Yeni Hizmet Ekle</h4>
+        <small>Fiyat listesine yeni hizmet ekleyin</small>
+    </div>
+    <a href="/Fiyat" class="btn-edit"><i class="fas fa-arrow-left me-2"></i>Geri Dön</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="form-card">
+            <form method="post" action="/Fiyat/Ekle">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Hizmet Adı</label>
+                        <input type="text" name="IslemAdi" class="form-control" placeholder="Örn: Saç Kesim" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Kategori</label>
+                        <input type="text" name="Kategori" class="form-control" list="kategoriList" placeholder="Kategori seç veya yaz" required />
+                        <datalist id="kategoriList">
+                            <option value="Saç"></option>
+                            <option value="Lazer Epilasyon"></option>
+                            <option value="Cilt Bakım"></option>
+                            <option value="Makyaj"></option>
+                            <option value="Tırnak"></option>
+                            <option value="Masaj"></option>
+                        </datalist>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fiyat (₺)</label>
+                        <input type="number" name="Fiyat" step="0.01" class="form-control" placeholder="0.00" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Süre (Dakika)</label>
+                        <input type="number" name="Sure" class="form-control" placeholder="30" value="0" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Durum</label>
+                        <select name="Aktif" class="form-select">
+                            <option value="true">Aktif</option>
+                            <option value="false">Pasif</option>
+                        </select>
+                    </div>
+                    <div class="col-12 d-flex gap-3 mt-2">
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save me-2"></i>Kaydet
+                        </button>
+                        <a href="/Fiyat" class="btn-delete">İptal</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
