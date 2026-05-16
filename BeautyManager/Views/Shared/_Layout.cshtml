@@ -301,6 +301,10 @@
 .sidebar.kapali + .sidebar-toggle { left: 10px; }
 .main-content.genis { margin-left: 0; }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 </head>
 <body>
     <button class="sidebar-toggle" onclick="toggleSidebar()" id="sidebarToggle">
@@ -363,6 +367,35 @@
         main.classList.toggle('genis');
         btn.style.left = sidebar.classList.contains('kapali') ? '8px' : '230px';
     }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var bugun = new Date();
+        var minTarih = new Date(bugun.getFullYear() - 5, 0, 1); // 5 yıl öncesi
+        var maxTarih = new Date(bugun.getFullYear() + 2, 11, 31); // 2 yıl sonrası
+
+        // Sadece tarih alanları
+        flatpickr("input[type='date']", {
+            locale: "tr",
+            dateFormat: "Y-m-d",
+            minDate: minTarih,
+            maxDate: maxTarih,
+            allowInput: false,
+            disableMobile: true
+        });
+
+        // Tarih + saat alanları
+        flatpickr("input[type='datetime-local']", {
+            locale: "tr",
+            dateFormat: "Y-m-dTH:i",
+            enableTime: true,
+            time_24hr: true,
+            minDate: minTarih,
+            maxDate: maxTarih,
+            allowInput: false,
+            disableMobile: true
+        });
+    });
 </script>
 </body>
 </html>
