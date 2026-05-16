@@ -1,11 +1,1243 @@
-﻿@{
+﻿ @{
     Layout = null;
 }
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <meta http-equiv="refresh" content="0; url=/Giris" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cicim Kuaför — Tarsus, Mersin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --rose: #FF6B9D;
+            --rose-deep: #E91E8C;
+            --blush: #FFB3D1;
+            --nude: #F5E6ED;
+            --gold: #D4A574;
+            --gold-light: #F0C896;
+            --cream: #FFF8F5;
+            --dark: #1A0A12;
+            --dark2: #2D1420;
+            --text: #4A2035;
+            --text-light: #8B5E75;
+            --white: #FFFFFF;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--cream);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ===== CUSTOM CURSOR ===== */
+        .cursor {
+            width: 12px; height: 12px;
+            background: var(--rose-deep);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s;
+            mix-blend-mode: multiply;
+        }
+
+        .cursor-ring {
+            width: 36px; height: 36px;
+            border: 1.5px solid var(--rose);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.15s ease;
+            mix-blend-mode: multiply;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 18px 0;
+            transition: all 0.4s;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255,248,245,0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 30px rgba(255,107,157,0.1);
+            padding: 12px 0;
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--dark);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-logo span { color: var(--rose-deep); font-style: italic; }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--rose-deep); background: rgba(233,30,140,0.06); }
+
+        .nav-wa-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white !important;
+            padding: 10px 22px !important;
+            border-radius: 30px !important;
+            font-weight: 600 !important;
+            font-size: 0.85rem !important;
+            box-shadow: 0 4px 15px rgba(37,211,102,0.3);
+            transition: all 0.3s !important;
+        }
+
+        .nav-wa-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(37,211,102,0.4) !important;
+            background: rgba(0,0,0,0) !important;
+            background: linear-gradient(135deg, #25D366, #128C7E) !important;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: linear-gradient(150deg, #FFF0F5 0%, #FFF8F5 40%, #FFF5F8 100%);
+        }
+
+        /* Dekoratif daireler */
+        .hero-daire-1 {
+            position: absolute;
+            width: 700px; height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,107,157,0.12) 0%, transparent 70%);
+            top: -200px; right: -150px;
+            animation: pulse-slow 6s ease-in-out infinite;
+        }
+
+        .hero-daire-2 {
+            position: absolute;
+            width: 400px; height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212,165,116,0.15) 0%, transparent 70%);
+            bottom: -100px; left: -100px;
+            animation: pulse-slow 8s ease-in-out infinite reverse;
+        }
+
+        .hero-daire-3 {
+            position: absolute;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,107,157,0.08) 0%, transparent 70%);
+            top: 30%; left: 40%;
+        }
+
+        /* Dekoratif çizgiler */
+        .hero-cizgi {
+            position: absolute;
+            top: 0; bottom: 0;
+            right: 42%;
+            width: 1px;
+            background: linear-gradient(180deg, transparent, rgba(255,107,157,0.2), transparent);
+        }
+
+        .hero-noktalar {
+            position: absolute;
+            top: 20%; right: 8%;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            opacity: 0.3;
+        }
+
+        .hero-noktalar span {
+            width: 5px; height: 5px;
+            background: var(--rose);
+            border-radius: 50%;
+            display: block;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 30px 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Sol taraf */
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 1px solid rgba(255,107,157,0.2);
+            box-shadow: 0 4px 15px rgba(255,107,157,0.1);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--rose-deep);
+            margin-bottom: 28px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-tag .dot {
+            width: 8px; height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.8rem, 5vw, 4.5rem);
+            font-weight: 900;
+            color: var(--dark);
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--rose-deep);
+            position: relative;
+        }
+
+        .hero h1 em::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--rose-deep), var(--blush));
+            border-radius: 2px;
+        }
+
+        .hero-desc {
+            font-size: 1rem;
+            color: var(--text-light);
+            line-height: 1.85;
+            margin-bottom: 36px;
+            max-width: 440px;
+        }
+
+        .hero-btnler {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 48px;
+        }
+
+        .btn-wa {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(37,211,102,0.3);
+        }
+
+        .btn-wa:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 35px rgba(37,211,102,0.4);
+            color: white;
+        }
+
+        .btn-kesfet {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 1.5px solid rgba(233,30,140,0.2);
+            color: var(--rose-deep);
+            padding: 15px 28px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(233,30,140,0.08);
+        }
+
+        .btn-kesfet:hover {
+            border-color: var(--rose-deep);
+            background: rgba(233,30,140,0.04);
+            transform: translateY(-2px);
+            color: var(--rose-deep);
+        }
+
+        /* HERO STATS */
+        .hero-stats {
+            display: flex;
+            gap: 30px;
+            padding-top: 36px;
+            border-top: 1px solid rgba(255,107,157,0.15);
+        }
+
+        .hero-stat { }
+
+        .hero-stat-sayi {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--rose-deep);
+            line-height: 1;
+        }
+
+        .hero-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        /* SAĞ TARAF — Hizmet kartları */
+        .hero-sag { position: relative; }
+
+        .hizmet-float-kart {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 22px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 8px 30px rgba(255,107,157,0.1);
+            border: 1px solid rgba(255,107,157,0.08);
+            transition: all 0.3s;
+            animation: slide-in 0.6s ease both;
+        }
+
+        .hizmet-float-kart:hover {
+            transform: translateX(-8px);
+            box-shadow: 0 12px 40px rgba(255,107,157,0.2);
+        }
+
+        .hizmet-float-kart:nth-child(1) { animation-delay: 0.1s; }
+        .hizmet-float-kart:nth-child(2) { animation-delay: 0.2s; }
+        .hizmet-float-kart:nth-child(3) { animation-delay: 0.3s; }
+        .hizmet-float-kart:nth-child(4) { animation-delay: 0.4s; }
+
+        @@keyframes yuzen {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+}
+
+.hero-sag {
+    animation: float-up 0.8s ease both 0.3s, yuzen 5s ease-in-out 1s infinite !important;
+}
+        .hf-ikon {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .hf-ikon-rose   { background: linear-gradient(135deg, #FFE0EC, #FFB3D1); color: #C2185B; }
+        .hf-ikon-purple { background: linear-gradient(135deg, #F3E5F5, #CE93D8); color: #7B1FA2; }
+        .hf-ikon-blue   { background: linear-gradient(135deg, #E3F2FD, #90CAF9); color: #1565C0; }
+        .hf-ikon-gold   { background: linear-gradient(135deg, #FFF8E1, #FFCC02); color: #E65100; }
+
+        .hf-kart-icerik h6 { color: var(--dark); font-weight: 700; margin: 0 0 3px; font-size: 0.9rem; }
+        .hf-kart-icerik p  { color: var(--text-light); font-size: 0.78rem; margin: 0; }
+
+        .hf-badge {
+            margin-left: auto;
+            background: #F0FFF4;
+            color: #22C55E;
+            border: 1px solid #BBF7D0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* ===== ŞERIT ===== */
+        .serit {
+            background: linear-gradient(135deg, var(--rose-deep), #C2185B);
+            padding: 16px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .serit-icerik {
+            display: flex;
+            gap: 50px;
+            animation: kaydir 20s linear infinite;
+            white-space: nowrap;
+        }
+
+        .serit-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .serit-item i { color: var(--gold-light); }
+
+        /* ===== HİZMETLER ===== */
+        .bolum { padding: 100px 0; }
+        .bolum-krem { background: #FFF8F5; }
+        .bolum-beyaz { background: white; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 30px; }
+
+        .bolum-baslik {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .bolum-etiket {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(233,30,140,0.1), rgba(212,165,116,0.1));
+            border: 1px solid rgba(233,30,140,0.15);
+            color: var(--rose-deep);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .bolum-baslik h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: var(--dark);
+            margin-bottom: 14px;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .bolum-baslik h2 em { font-style: italic; color: var(--rose-deep); }
+
+        .bolum-baslik p { color: var(--text-light); font-size: 0.95rem; line-height: 1.7; }
+
+        /* Hizmet kartları */
+        .hizmetler-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .hz-kart {
+            background: white;
+            border-radius: 24px;
+            padding: 32px 26px;
+            border: 1.5px solid rgba(255,107,157,0.08);
+            transition: all 0.35s;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        .hz-kart::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--rose-deep), var(--gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.35s;
+        }
+
+        .hz-kart:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255,107,157,0.25);
+            box-shadow: 0 20px 50px rgba(255,107,157,0.15);
+        }
+
+        .hz-kart:hover::before { transform: scaleX(1); }
+
+        .hz-kart-ikon {
+            width: 64px; height: 64px;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .hz-kart h5 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .hz-kart p {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            line-height: 1.75;
+            margin-bottom: 18px;
+        }
+
+        .hz-fiyat {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #FFF0F5, #FFE0EC);
+            border: 1px solid rgba(255,107,157,0.2);
+            color: var(--rose-deep);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* ===== NEDEN BİZ ===== */
+        .neden-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .neden-sol h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: var(--dark);
+            margin-bottom: 30px;
+            line-height: 1.2;
+        }
+
+        .neden-sol h2 em { font-style: italic; color: var(--rose-deep); }
+
+        .neden-kart {
+            background: white;
+            border: 1.5px solid rgba(255,107,157,0.08);
+            border-radius: 16px;
+            padding: 20px 22px;
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            transition: all 0.25s;
+        }
+
+        .neden-kart:hover {
+            border-color: rgba(255,107,157,0.25);
+            transform: translateX(6px);
+            box-shadow: 0 8px 25px rgba(255,107,157,0.1);
+        }
+
+        .neden-ikon {
+            width: 46px; height: 46px;
+            background: linear-gradient(135deg, var(--rose-deep), #C2185B);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1rem;
+            flex-shrink: 0;
+            box-shadow: 0 6px 15px rgba(233,30,140,0.25);
+        }
+
+        .neden-kart h6 { color: var(--dark); font-weight: 700; margin: 0 0 4px; font-size: 0.92rem; }
+        .neden-kart p  { color: var(--text-light); font-size: 0.82rem; line-height: 1.6; margin: 0; }
+
+        /* Sayı kartları */
+        .sayilar-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .sayi-kart {
+            background: white;
+            border: 1.5px solid rgba(255,107,157,0.1);
+            border-radius: 20px;
+            padding: 28px 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .sayi-kart:hover {
+            border-color: rgba(255,107,157,0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(255,107,157,0.12);
+        }
+
+        .sayi-rakam {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--rose-deep), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .sayi-etiket { color: var(--text-light); font-size: 0.8rem; font-weight: 500; }
+
+        .konum-kart {
+            background: linear-gradient(135deg, #FFF0F5, #FFF8F0);
+            border: 1.5px solid rgba(255,107,157,0.15);
+            border-radius: 20px;
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            grid-column: span 2;
+        }
+
+        .konum-kart .ikon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .konum-kart h6 { color: var(--dark); font-weight: 700; margin: 0 0 4px; }
+        .konum-kart p  { color: var(--text-light); font-size: 0.82rem; margin: 0; }
+
+        .acik-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #F0FFF4;
+            border: 1px solid #BBF7D0;
+            color: #16A34A;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        /* ===== İLETİŞİM ===== */
+        .iletisim-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .iletisim-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+
+        .iletisim-kart {
+            background: white;
+            border: 1.5px solid rgba(255,107,157,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.25s;
+        }
+
+        .iletisim-kart:hover {
+            border-color: rgba(255,107,157,0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(255,107,157,0.1);
+        }
+
+        .iletisim-ikon {
+            width: 46px; height: 46px;
+            background: linear-gradient(135deg, #FFE0EC, #FFB3D1);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--rose-deep);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .iletisim-kart h6 {
+            color: var(--text-light);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 3px;
+            font-weight: 600;
+        }
+
+        .iletisim-kart p { color: var(--dark); font-weight: 700; margin: 0; font-size: 0.92rem; }
+
+        /* WA MEGA BUTON */
+        .wa-mega-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 20px 50px;
+            border-radius: 18px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 12px 35px rgba(37,211,102,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wa-mega-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .wa-mega-btn:hover::before { left: 100%; }
+
+        .wa-mega-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(37,211,102,0.4);
+            color: white;
+        }
+
+        .wa-mega-btn .wa-ikon {
+            font-size: 1.6rem;
+            animation: wa-shake 2.5s infinite;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark);
+            padding: 40px 0;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .footer-logo span { color: var(--rose); font-style: italic; }
+        .footer-yazi { color: rgba(255,255,255,0.4); font-size: 0.82rem; }
+
+        /* ===== ANİMASYONLAR ===== */
+        @@keyframes pulse-slow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        @@keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        @@keyframes kaydir {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @@keyframes slide-in {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @@keyframes wa-shake {
+            0%, 100% { transform: rotate(0deg); }
+            10% { transform: rotate(-10deg); }
+            20% { transform: rotate(10deg); }
+            30% { transform: rotate(-5deg); }
+            40% { transform: rotate(5deg); }
+            50%, 100% { transform: rotate(0deg); }
+        }
+
+        @@keyframes float-up {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* MOBİL */
+        @@media (max-width: 768px) {
+            .hero-container { grid-template-columns: 1fr; padding: 100px 20px 40px; }
+            .hero-sag { display: none; }
+            .hizmetler-grid { grid-template-columns: 1fr; }
+            .neden-grid { grid-template-columns: 1fr; }
+            .sayilar-grid { grid-template-columns: 1fr 1fr; }
+            .iletisim-grid { grid-template-columns: 1fr; }
+            .konum-kart { grid-column: span 1; }
+            .nav-links { display: none; }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- CUSTOM CURSOR -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a class="nav-logo" href="#">✨ <span>Cicim</span> Kuaför</a>
+            <ul class="nav-links">
+                <li><a href="#hizmetler">Hizmetler</a></li>
+                <li><a href="#neden">Neden Biz</a></li>
+                <li><a href="#iletisim">İletişim</a></li>
+                <li>
+                    <a href="https://wa.me/905370164327" target="_blank" class="nav-wa-btn">
+                        <i class="fab fa-whatsapp"></i> Randevu Al
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-daire-1"></div>
+        <div class="hero-daire-2"></div>
+        <div class="hero-daire-3"></div>
+        <div class="hero-cizgi"></div>
+        <div class="hero-noktalar">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="hero-container">
+            <div class="hero-sol" style="animation: float-up 0.8s ease both;">
+                <div class="hero-tag">
+                    <span class="dot"></span>
+                    Tarsus, Mersin — Şu An Randevu Alınıyor
+                </div>
+                <h1>
+                    Güzelliğiniz<br>
+                    Bizim <em>Tutkumuz</em>
+                </h1>
+                <p class="hero-desc">
+                    Tarsus'un en şık güzellik merkezinde uzman kadromuz ve son teknoloji cihazlarımızla
+                    size özel, unutulmaz bir bakım deneyimi yaşatıyoruz. ✨
+                </p>
+                <div class="hero-btnler">
+                    <a href="https://wa.me/905370164327" target="_blank" class="btn-wa">
+                        <i class="fab fa-whatsapp" style="font-size:1.1rem"></i>
+                        WhatsApp Randevu
+                    </a>
+                    <a href="#hizmetler" class="btn-kesfet">
+                        <i class="fas fa-sparkles"></i>
+                        Hizmetlerimiz
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-sayi">500+</div>
+                        <div class="hero-stat-label">Mutlu Müşteri</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-sayi">20+</div>
+                        <div class="hero-stat-label">Yıl Deneyim</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-sayi">%98</div>
+                        <div class="hero-stat-label">Memnuniyet</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-sayi">20+</div>
+                        <div class="hero-stat-label">Hizmet</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-sag" style="animation: float-up 0.8s ease both 0.3s;">
+                <div class="hizmet-float-kart">
+                    <div class="hf-ikon hf-ikon-rose"><i class="fas fa-bolt"></i></div>
+                    <div class="hf-kart-icerik">
+                        <h6>Lazer Epilasyon</h6>
+                        <p>Kalıcı & ağrısız — Son teknoloji</p>
+                    </div>
+                    <span class="hf-badge">✓ Mevcut</span>
+                </div>
+                <div class="hizmet-float-kart">
+                    <div class="hf-ikon hf-ikon-purple"><i class="fas fa-cut"></i></div>
+                    <div class="hf-kart-icerik">
+                        <h6>Saç Tasarım & Bakım</h6>
+                        <p>Trend kesim & profesyonel boyama</p>
+                    </div>
+                    <span class="hf-badge">✓ Mevcut</span>
+                </div>
+                <div class="hizmet-float-kart">
+                    <div class="hf-ikon hf-ikon-blue"><i class="fas fa-spa"></i></div>
+                    <div class="hf-kart-icerik">
+                        <h6>Cilt Bakım & Makyaj</h6>
+                        <p>Profesyonel bakım & kalıcı makyaj</p>
+                    </div>
+                    <span class="hf-badge">✓ Mevcut</span>
+                </div>
+                <div class="hizmet-float-kart">
+                    <div class="hf-ikon hf-ikon-gold"><i class="fas fa-crown"></i></div>
+                    <div class="hf-kart-icerik">
+                        <h6>Gelin & Özel Gün Paketi</h6>
+                        <p>Hayalinizdeki görünüm için</p>
+                    </div>
+                    <span class="hf-badge">✓ Mevcut</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ŞERİT -->
+    <div class="serit">
+        <div class="serit-icerik">
+            <div class="serit-item"><i class="fas fa-star"></i> Lazer Epilasyon</div>
+            <div class="serit-item"><i class="fas fa-cut"></i> Saç Tasarım</div>
+            <div class="serit-item"><i class="fas fa-spa"></i> Cilt Bakım</div>
+            <div class="serit-item"><i class="fas fa-magic"></i> Kalıcı Makyaj</div>
+            <div class="serit-item"><i class="fas fa-hand-sparkles"></i> Tırnak Bakım</div>
+            <div class="serit-item"><i class="fas fa-crown"></i> Gelin Paketi</div>
+            <div class="serit-item"><i class="fas fa-heart"></i> Tarsus'un En İyi Salonu</div>
+            <div class="serit-item"><i class="fas fa-star"></i> Lazer Epilasyon</div>
+            <div class="serit-item"><i class="fas fa-cut"></i> Saç Tasarım</div>
+            <div class="serit-item"><i class="fas fa-spa"></i> Cilt Bakım</div>
+            <div class="serit-item"><i class="fas fa-magic"></i> Kalıcı Makyaj</div>
+            <div class="serit-item"><i class="fas fa-hand-sparkles"></i> Tırnak Bakım</div>
+            <div class="serit-item"><i class="fas fa-crown"></i> Gelin Paketi</div>
+            <div class="serit-item"><i class="fas fa-heart"></i> Tarsus'un En İyi Salonu</div>
+        </div>
+    </div>
+
+    <!-- HİZMETLER -->
+    <section class="bolum bolum-beyaz" id="hizmetler">
+        <div class="container">
+            <div class="bolum-baslik fade-in">
+                <div class="bolum-etiket">✨ Hizmetlerimiz</div>
+                <h2>Size Özel <em>Güzellik</em><br>Çözümleri</h2>
+                <p>Uzman kadromuz ve modern ekipmanlarımızla en iyi hizmeti sunuyoruz</p>
+            </div>
+            <div class="hizmetler-grid">
+                <div class="hz-kart fade-in">
+                    <div class="hz-kart-ikon" style="background:linear-gradient(135deg,#FFE0EC,#FFB3D1); color:#C2185B">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h5>Lazer Epilasyon</h5>
+                    <p>Diode lazer teknolojisiyle kalıcı tüy alma. Tüm cilt tiplerine uygun, ağrısız ve hızlı sonuç garantisi.</p>
+                    <div class="hz-fiyat"><i class="fas fa-tag"></i> 500₺'den başlayan fiyatlarla</div>
+                </div>
+                <div class="hz-kart fade-in">
+                    <div class="hz-kart-ikon" style="background:linear-gradient(135deg,#F3E5F5,#CE93D8); color:#7B1FA2">
+                        <i class="fas fa-cut"></i>
+                    </div>
+                    <h5>Saç Kesim & Boyama</h5>
+                    <p>Trend saç tasarımları, profesyonel boyama ve keratin bakım uygulamaları ile saçlarınızı yenileyin.</p>
+                    <div class="hz-fiyat"><i class="fas fa-tag"></i> 150₺'den başlayan fiyatlarla</div>
+                </div>
+                <div class="hz-kart fade-in">
+                    <div class="hz-kart-ikon" style="background:linear-gradient(135deg,#E8F5E9,#A5D6A7); color:#2E7D32">
+                        <i class="fas fa-spa"></i>
+                    </div>
+                    <h5>Cilt Bakım</h5>
+                    <p>Cilt tipinize özel bakım protokolleri ve mezoterapi uygulamaları ile cildinizi gençleştirin.</p>
+                    <div class="hz-fiyat"><i class="fas fa-tag"></i> 200₺'den başlayan fiyatlarla</div>
+                </div>
+                <div class="hz-kart fade-in">
+                    <div class="hz-kart-ikon" style="background:linear-gradient(135deg,#FFF8E1,#FFE082); color:#E65100">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h5>Makyaj & Kalıcı Makyaj</h5>
+                    <p>Günlük, gece ve özel gün makyajı. Microblading ve kalıcı dudak boyama uygulamaları.</p>
+                    <div class="hz-fiyat"><i class="fas fa-tag"></i> 250₺'den başlayan fiyatlarla</div>
+                </div>
+                <div class="hz-kart fade-in">
+                    <div class="hz-kart-ikon" style="background:linear-gradient(135deg,#E3F2FD,#90CAF9); color:#1565C0">
+                        <i class="fas fa-hand-sparkles"></i>
+                    </div>
+                    <h5>Tırnak Bakım</h5>
+                    <p>Manikür, pedikür, kalıcı oje ve protez tırnak uygulamaları ile ellerinize özel ilgi.</p>
+                    <div class="hz-fiyat"><i class="fas fa-tag"></i> 100₺'den başlayan fiyatlarla</div>
+                </div>
+                <div class="hz-kart fade-in">
+                    <div class="hz-kart-ikon" style="background:linear-gradient(135deg,#FCE4EC,#F48FB1); color:#880E4F">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h5>Gelin & Özel Gün Paketi</h5>
+                    <p>Özel gününüz için saç tasarımı, makyaj ve cilt bakımını kapsayan kapsamlı gelin paketi.</p>
+                    <div class="hz-fiyat"><i class="fas fa-tag"></i> 1500₺'den başlayan fiyatlarla</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEDEN BİZ -->
+    <section class="bolum bolum-krem" id="neden">
+        <div class="container">
+            <div class="neden-grid">
+                <div class="neden-sol fade-in">
+                    <div class="bolum-etiket">💎 Neden Biz?</div>
+                    <h2 style="margin-top:14px">Tarsus'un En<br><em>Güvenilir</em> Güzellik<br>Merkezi</h2>
+                    <div style="margin-top:28px">
+                        <div class="neden-kart">
+                            <div class="neden-ikon"><i class="fas fa-certificate"></i></div>
+                            <div>
+                                <h6>Sertifikalı Uzman Kadro</h6>
+                                <p>Alanında sertifikalı, yıllarca deneyim kazanmış uzman ekibimizle güvenle hizmet alın.</p>
+                            </div>
+                        </div>
+                        <div class="neden-kart">
+                            <div class="neden-ikon"><i class="fas fa-microscope"></i></div>
+                            <div>
+                                <h6>Son Teknoloji Cihazlar</h6>
+                                <p>Avrupa standartlarında, FDA onaylı cihazlarla en güvenli ve etkili sonuçları elde edin.</p>
+                            </div>
+                        </div>
+                        <div class="neden-kart">
+                            <div class="neden-ikon"><i class="fas fa-shield-alt"></i></div>
+                            <div>
+                                <h6>Hijyen & Sterilizasyon</h6>
+                                <p>En yüksek hijyen standartları ve tek kullanımlık malzemelerle tamamen güvenli ortam.</p>
+                            </div>
+                        </div>
+                        <div class="neden-kart">
+                            <div class="neden-ikon"><i class="fas fa-heart"></i></div>
+                            <div>
+                                <h6>Kişiselleştirilmiş Bakım</h6>
+                                <p>Her müşterimize özel analiz ve protokoller ile en iyi sonuçları garanti ediyoruz.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="neden-sag fade-in">
+                    <div class="sayilar-grid">
+                        <div class="sayi-kart">
+                            <div class="sayi-rakam">500+</div>
+                            <div class="sayi-etiket">Mutlu Müşteri</div>
+                        </div>
+                        <div class="sayi-kart">
+                            <div class="sayi-rakam">20+</div>
+                            <div class="sayi-etiket">Yıllık Deneyim</div>
+                        </div>
+                        <div class="sayi-kart">
+                            <div class="sayi-rakam">20+</div>
+                            <div class="sayi-etiket">Hizmet Çeşidi</div>
+                        </div>
+                        <div class="sayi-kart">
+                            <div class="sayi-rakam">%98</div>
+                            <div class="sayi-etiket">Memnuniyet Oranı</div>
+                        </div>
+                        <div class="konum-kart">
+                            <div class="ikon">📍</div>
+                            <div>
+                                <h6>Tarsus, Mersin</h6>
+                                <p>Haftanın 6 günü hizmetinizdeyiz</p>
+                                <div class="acik-badge">
+                                    <span style="width:6px;height:6px;background:#22C55E;border-radius:50%;display:inline-block;animation:blink 2s infinite"></span>
+                                    Çar-Pzt: 09:00 – 18:00
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- İLETİŞİM -->
+    <section class="bolum bolum-beyaz" id="iletisim">
+        <div class="container">
+            <div class="bolum-baslik fade-in">
+                <div class="bolum-etiket">📞 İletişim</div>
+                <h2>Randevu Almak<br><em>Çok Kolay!</em></h2>
+                <p>WhatsApp üzerinden bize ulaşın, anında randevunuzu ayarlayalım</p>
+            </div>
+            <div class="iletisim-wrap fade-in">
+                <div class="iletisim-grid">
+                    <div class="iletisim-kart">
+                        <div class="iletisim-ikon"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <h6>Telefon</h6>
+                            <p>0537 016 43 27</p>
+                        </div>
+                    </div>
+                    <div class="iletisim-kart">
+                        <div class="iletisim-ikon" style="background:linear-gradient(135deg,#E8F5E9,#A5D6A7); color:#2E7D32">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div>
+                            <h6>WhatsApp</h6>
+                            <p>0537 016 43 27</p>
+                        </div>
+                    </div>
+                    <div class="iletisim-kart">
+                        <div class="iletisim-ikon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <h6>Adres</h6>
+                            <p>Tarsus, Mersin, Türkiye</p>
+                        </div>
+                    </div>
+                    <div class="iletisim-kart">
+                        <div class="iletisim-ikon"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <h6>Çalışma Saatleri</h6>
+                            <p>Çar-Pzt: 09:00 – 18:00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="https://wa.me/905370164327" target="_blank" class="wa-mega-btn">
+                        <i class="fab fa-whatsapp wa-ikon"></i>
+                        <div>
+                            <div style="font-size:1.1rem">WhatsApp ile Hemen Randevu Al</div>
+                            <div style="font-size:0.78rem; opacity:0.85; font-weight:400; margin-top:2px">
+                                Ortalama yanıt süresi: 5 dakika ⚡
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-inner">
+            <div>
+                <div class="footer-logo">✨ <span>Cicim</span> Kuaför</div>
+                <div class="footer-yazi" style="margin-top:5px">Tarsus, Mersin — Profesyonel Güzellik Merkezi</div>
+            </div>
+            <div class="footer-yazi">© 2024 Cicim Kuaför — Tüm hakları saklıdır 💗</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // CUSTOM CURSOR
+        const cursor = document.getElementById('cursor');
+        const cursorRing = document.getElementById('cursorRing');
+        let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+        document.addEventListener('mousemove', e => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursor.style.left = mouseX - 6 + 'px';
+            cursor.style.top = mouseY - 6 + 'px';
+        });
+
+        function animateCursor() {
+            ringX += (mouseX - ringX - 18) * 0.12;
+            ringY += (mouseY - ringY - 18) * 0.12;
+            cursorRing.style.left = ringX + 'px';
+            cursorRing.style.top = ringY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(2)';
+                cursorRing.style.transform = 'scale(1.5)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+                cursorRing.style.transform = 'scale(1)';
+            });
+        });
+
+        // NAVBAR SCROLL
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // FADE IN
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // SMOOTH SCROLL
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
 </body>
 </html>

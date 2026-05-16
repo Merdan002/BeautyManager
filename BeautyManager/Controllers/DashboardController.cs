@@ -88,5 +88,52 @@ namespace BeautyManager.Controllers
 
             return View(bugunRandevular);
         }
+        public IActionResult WhatsappOzet()
+        {
+            if (!GirisYapildiMi()) return RedirectToAction("Index", "Giris");
+
+            var bugun = DateTime.Today;
+            var randevular = _context.Randevular
+                .Include(r => r.Musteri)
+                .Include(r => r.Personel)
+                .Where(r => r.RandevuTarihi.Date == bugun)
+                .OrderBy(r => r.RandevuTarihi)
+                .ToList();
+
+            var mesaj = $"💇‍♀️ *CİCİM KUAFÖR — {bugun:dd MMMM yyyy} RANDEVU LİSTESİ*\n\n";
+
+            if (!randevular.Any())
+            {
+                mesaj += "Bugün randevu bulunmamaktadır. 📭";
+            }
+            else
+            {
+                mesaj += $"📋 Toplam *{randevular.Count}* randevu\n";
+                mesaj += "━━━━━━━━━━━━━━━━\n\n";
+
+                foreach (var r in randevular)
+                {
+                    var odeme = r.OdendiMi ? "✅ Ödendi" : "❌ Ödenmedi";
+                    var durum = r.Durum == "Tamamlandı" ? "✅" : r.Durum == "İptal" ? "❌" : "⏳";
+                    mesaj += $"{durum} *{r.RandevuTarihi:HH:mm}* — {r.Musteri?.Ad} {r.Musteri?.Soyad}\n";
+                    mesaj += $"   📌 {r.IslemAciklamasi}\n";
+                    mesaj += $"   👤 {r.Personel?.Ad} {r.Personel?.Soyad}\n";
+                    mesaj += $"   💰 {r.Ucret:C0} — {odeme}\n\n";
+                }
+
+                mesaj += "━━━━━━━━━━━━━━━━\n";
+                var toplamUcret = randevular.Sum(r => r.Ucret);
+                var odenenUcret = randevular.Where(r => r.OdendiMi).Sum(r => r.Ucret);
+                mesaj += $"💵 Toplam: *{toplamUcret:C0}*\n";
+                mesaj += $"✅ Ödenen: *{odenenUcret:C0}*\n";
+                mesaj += $"❌ Bekleyen: *{(toplamUcret - odenenUcret):C0}*";
+            }
+
+            var encodedMesaj = Uri.EscapeDataString(mesaj);
+            // Kendi numaranı buraya yaz (90 ile başlayarak)
+            var whatsappUrl = $"https://wa.me/905370164327?text={encodedMesaj}";
+
+            return Redirect(whatsappUrl);
+        }
     }
 }

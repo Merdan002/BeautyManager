@@ -6,9 +6,15 @@
         <h4>📊 Selda Karaca</h4>
         <small>@DateTime.Now.ToString("dd MMMM yyyy, dddd") — Hoş geldiniz!</small>
     </div>
-    <a href="/Randevu/Ekle" class="btn-new">
-        <i class="fas fa-plus me-2"></i>Yeni Randevu
-    </a>
+    <div class="d-flex gap-2">
+        <a href="/Dashboard/WhatsappOzet" target="_blank" class="btn-new"
+               style="background:linear-gradient(135deg,#25D366,#128C7E); box-shadow:0 4px 15px rgba(37,211,102,0.3)">
+            <i class="fab fa-whatsapp me-2"></i>Günlük Özet Gönder
+        </a>
+        <a href="/Randevu/Ekle" class="btn-new">
+            <i class="fas fa-plus me-2"></i>Yeni Randevu
+        </a>
+    </div>
 </div>
 
 <!-- STAT CARDS -->
@@ -193,62 +199,73 @@
 </div>
 
 <!-- GRAFİK SCRIPTS -->
-<script>
-    // Haftalık Grafik
-    new Chart(document.getElementById('haftalikChart'), {
-        type: 'bar',
-        data: {
-            labels: [@Html.Raw(ViewBag.GrafikGunler)],
-            datasets: [{
-                label: 'Randevu',
-                data: [@Html.Raw(ViewBag.GrafikSayilar)],
-                backgroundColor: 'rgba(233,30,99,0.5)',
-                borderColor: '#E91E63',
-                borderWidth: 2,
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { ticks: { color: '#6060a0' }, grid: { color: '#2a2a4a' }, beginAtZero: true },
-                x: { ticks: { color: '#6060a0' }, grid: { display: false } }
-            }
-        }
-    });
 
-    // Aylık Karşılaştırma Grafiği
-    new Chart(document.getElementById('aylikChart'), {
-        type: 'bar',
-        data: {
-            labels: [@Html.Raw(ViewBag.AylikHaftalar)],
-            datasets: [
-                {
-                    label: 'Bu Ay',
-                    data: [@Html.Raw(ViewBag.BuAyData)],
-                    backgroundColor: 'rgba(233,30,99,0.5)',
-                    borderColor: '#E91E63',
-                    borderWidth: 2,
-                    borderRadius: 6
-                },
-                {
-                    label: 'Geçen Ay',
-                    data: [@Html.Raw(ViewBag.GecenAyData)],
-                    backgroundColor: 'rgba(156,39,176,0.3)',
-                    borderColor: '#9C27B0',
-                    borderWidth: 2,
-                    borderRadius: 6
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: '#9090b0' } } },
-            scales: {
-                y: { ticks: { color: '#6060a0' }, grid: { color: '#2a2a4a' }, beginAtZero: true },
-                x: { ticks: { color: '#6060a0' }, grid: { display: false } }
-            }
-        }
+    // Haftalık Grafik
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    window.addEventListener('load', function () {
+    // Haftalık Grafik
+    var ctx1 = document.getElementById('haftalikChart');
+    if (ctx1) {
+    new Chart(ctx1, {
+    type: 'bar',
+    data: {
+    labels: [@Html.Raw(ViewBag.GrafikGunler)],
+    datasets: [{
+    label: 'Randevu',
+    data: [@Html.Raw(ViewBag.GrafikSayilar)],
+    backgroundColor: 'rgba(233,30,99,0.5)',
+    borderColor: '#E91E63',
+    borderWidth: 2,
+    borderRadius: 6
+    }]
+    },
+    options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+    y: { ticks: { color: '#6060a0' }, grid: { color: '#2a2a4a' }, beginAtZero: true },
+    x: { ticks: { color: '#6060a0' }, grid: { display: false } }
+    }
+    }
+    });
+    }
+
+    // Aylık Karşılaştırma
+    var ctx2 = document.getElementById('aylikChart');
+    if (ctx2) {
+    new Chart(ctx2, {
+    type: 'bar',
+    data: {
+    labels: [@Html.Raw(ViewBag.AylikHaftalar)],
+    datasets: [
+    {
+    label: 'Bu Ay',
+    data: [@Html.Raw(ViewBag.BuAyData)],
+    backgroundColor: 'rgba(233,30,99,0.5)',
+    borderColor: '#E91E63',
+    borderWidth: 2,
+    borderRadius: 6
+    },
+    {
+    label: 'Geçen Ay',
+    data: [@Html.Raw(ViewBag.GecenAyData)],
+    backgroundColor: 'rgba(156,39,176,0.3)',
+    borderColor: '#9C27B0',
+    borderWidth: 2,
+    borderRadius: 6
+    }
+    ]
+    },
+    options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#9090b0' } } },
+    scales: {
+    y: { ticks: { color: '#6060a0' }, grid: { color: '#2a2a4a' }, beginAtZero: true },
+    x: { ticks: { color: '#6060a0' }, grid: { display: false } }
+    }
+    }
+    });
+    }
     });
 </script>
