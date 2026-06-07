@@ -60,9 +60,75 @@ namespace BeautyManager.Controllers
 
         // Randevuyu kaydet
         [HttpPost]
-        public IActionResult Ekle(Randevu randevu)
+        public IActionResult Ekle(int MusteriId, string MusteriAdi, int PersonelId, string PersonelAdi,
+            DateTime RandevuTarihi, string IslemAciklamasi, string Durum, decimal Ucret, bool OdendiMi, string Notlar = "")
         {
             if (!GirisYapildiMi()) return RedirectToAction("Index", "Giris");
+
+            // Müşteri seçilmediyse ama isim yazıldıysa yeni müşteri oluştur
+            if (MusteriId == 0 && !string.IsNullOrEmpty(MusteriAdi))
+            {
+                var adParcalar = MusteriAdi.Trim().Split(' ');
+                var yeniMusteri = new Musteri
+                {
+                    Ad = adParcalar[0],
+                    Soyad = adParcalar.Length > 1 ? string.Join(" ", adParcalar.Skip(1)) : "",
+                    Telefon = "",
+                    KayitTarihi = DateTime.Now
+                };
+                _context.Musteriler.Add(yeniMusteri);
+                _context.SaveChanges();
+                MusteriId = yeniMusteri.Id;
+            }
+
+            // Personel seçilmediyse ama isim yazıldıysa mevcut personeli bul veya yeni oluştur
+            if (PersonelId == 0 && !string.IsNullOrEmpty(PersonelAdi))
+            {
+                var adParcalar = PersonelAdi.Trim().Split(' ');
+                var mevcutPersonel = _context.Personeller
+                    .FirstOrDefault(p => p.Ad.Contains(adParcalar[0]));
+
+                if (mevcutPersonel != null)
+                {
+                    PersonelId = mevcutPersonel.Id;
+                }
+                else
+                {
+                    var yeniPersonel = new Personel
+                    {
+                        Ad = adParcalar[0],
+                        Soyad = adParcalar.Length > 1 ? string.Join(" ", adParcalar.Skip(1)) : "",
+                        Telefon = "",
+                        Uzmanlik = "",
+                        Aktif = true
+                    };
+                    _context.Personeller.Add(yeniPersonel);
+                    _context.SaveChanges();
+                    PersonelId = yeniPersonel.Id;
+                }
+            }
+
+            if (MusteriId == 0 || PersonelId == 0)
+            {
+                ViewBag.Hata = "Lütfen müşteri ve personel bilgisi giriniz!";
+                ViewBag.Musteriler = _context.Musteriler.OrderBy(m => m.Ad).ToList();
+                ViewBag.Personeller = _context.Personeller.Where(p => p.Aktif).ToList();
+                ViewBag.FiyatListesi = _context.FiyatListeleri.Where(f => f.Aktif).ToList();
+                return View();
+            }
+
+            var randevu = new Randevu
+            {
+                MusteriId = MusteriId,
+                PersonelId = PersonelId,
+                RandevuTarihi = RandevuTarihi,
+                IslemAciklamasi = IslemAciklamasi ?? "",
+                Durum = Durum ?? "Bekliyor",
+                Ucret = Ucret,
+                OdendiMi = OdendiMi,
+                Notlar = Notlar ?? ""
+            };
+
             _context.Randevular.Add(randevu);
             _context.SaveChanges();
             return RedirectToAction("Index");
