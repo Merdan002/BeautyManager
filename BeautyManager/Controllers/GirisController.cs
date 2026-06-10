@@ -1,5 +1,8 @@
 ﻿using BeautyManager.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BeautyManager.Controllers
 {
@@ -20,7 +23,7 @@ namespace BeautyManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(string kullaniciAdi, string sifre)
+        public async Task<IActionResult> Index(string kullaniciAdi, string sifre)
         {
             var kullanici = _context.Kullanicilar
                 .FirstOrDefault(k => k.KullaniciAdi == kullaniciAdi && k.Sifre == sifre);
@@ -29,6 +32,16 @@ namespace BeautyManager.Controllers
             {
                 HttpContext.Session.SetString("KullaniciAdi", kullanici.KullaniciAdi);
                 HttpContext.Session.SetString("AdSoyad", kullanici.AdSoyad);
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, kullanici.KullaniciAdi),
+                    new Claim(ClaimTypes.Role, kullanici.Rol)
+                };
+                var identity = new ClaimsIdentity(claims, "CookieAuth");
+                var principal = new ClaimsPrincipal(identity);
+                await HttpContext.SignInAsync("CookieAuth", principal);
+
                 return RedirectToAction("Index", "Dashboard");
             }
 
@@ -36,9 +49,10 @@ namespace BeautyManager.Controllers
             return View();
         }
 
-        public IActionResult Cikis()
+        public async Task<IActionResult> Cikis()
         {
             HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync("CookieAuth");
             return RedirectToAction("Index");
         }
 

@@ -1,8 +1,10 @@
 ﻿using BeautyManager.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BeautyManager.Controllers
 {
+    [Authorize(AuthenticationSchemes = "CookieAuth")]
     public class AyarlarController : Controller
     {
         private readonly BeautyContext _context;

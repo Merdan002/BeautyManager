@@ -5,6 +5,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
+    {
+        options.LoginPath = "/yonetim";
+        options.AccessDeniedPath = "/yonetim";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
+
+builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<BeautyContext>(options =>
     options.UseSqlite("Data Source=beauty.db"));
@@ -21,6 +30,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseSession();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseAuthorization();
 

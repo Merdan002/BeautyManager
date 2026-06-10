@@ -1,9 +1,11 @@
 ﻿using BeautyManager.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BeautyManager.Controllers
 {
+    [Authorize(AuthenticationSchemes = "CookieAuth")]
     public class PersonelController : Controller
     {
         private readonly BeautyContext _context;

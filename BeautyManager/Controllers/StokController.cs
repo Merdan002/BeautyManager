@@ -1,8 +1,10 @@
 ﻿using BeautyManager.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BeautyManager.Controllers
 {
+    [Authorize(AuthenticationSchemes = "CookieAuth")]
     public class StokController : Controller
     {
         private readonly BeautyContext _context;
