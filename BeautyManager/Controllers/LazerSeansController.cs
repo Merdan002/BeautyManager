@@ -33,7 +33,6 @@ namespace BeautyManager.Controllers
             ViewBag.SecilenDurum = durum;
             return View(seanslar.OrderByDescending(s => s.BaslangicTarihi).ToList());
         }
-
         public IActionResult Ekle()
         {
             if (!GirisYapildiMi()) return RedirectToAction("Index", "Giris");
@@ -42,9 +41,48 @@ namespace BeautyManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult Ekle(LazerSeans seans)
+        public IActionResult Ekle(int MusteriId, string MusteriAdi, string Bolge,
+    int ToplamSeans, decimal ToplamUcret, DateTime BaslangicTarihi,
+    DateTime? SonrakiSeansTarihi)
         {
             if (!GirisYapildiMi()) return RedirectToAction("Index", "Giris");
+
+            // Müşteri seçilmediyse ama isim yazıldıysa yeni müşteri oluştur
+            if (MusteriId == 0 && !string.IsNullOrEmpty(MusteriAdi))
+            {
+                var adParcalar = MusteriAdi.Trim().Split(' ');
+                var yeniMusteri = new Musteri
+                {
+                    Ad = adParcalar[0],
+                    Soyad = adParcalar.Length > 1 ? string.Join(" ", adParcalar.Skip(1)) : "",
+                    Telefon = "",
+                    KayitTarihi = DateTime.Now
+                };
+                _context.Musteriler.Add(yeniMusteri);
+                _context.SaveChanges();
+                MusteriId = yeniMusteri.Id;
+            }
+
+            if (MusteriId == 0)
+            {
+                ViewBag.Hata = "Lütfen müşteri bilgisi giriniz!";
+                ViewBag.Musteriler = _context.Musteriler.OrderBy(m => m.Ad).ToList();
+                return View();
+            }
+
+            var seans = new LazerSeans
+            {
+                MusteriId = MusteriId,
+                Bolge = Bolge ?? "",
+                ToplamSeans = ToplamSeans,
+                ToplamUcret = ToplamUcret,
+                BaslangicTarihi = BaslangicTarihi,
+                SonrakiSeansTarihi = SonrakiSeansTarihi,
+                TamamlananSeans = 0,
+                OdenenUcret = 0,
+                Durum = "Devam Ediyor"
+            };
+
             _context.LazerSeanslar.Add(seans);
             _context.SaveChanges();
             return RedirectToAction("Index");

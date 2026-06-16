@@ -87,8 +87,8 @@
         <div class="lazer-header">
             <div class="d-flex align-items-center gap-3">
                 <div class="lazer-avatar">
-                    @s.Musteri?.Ad?.Substring(0, 1)@s.Musteri?.Soyad?.Substring(0, 1)
-                </div>
+    @(s.Musteri?.Ad?.Length > 0 ? s.Musteri.Ad.Substring(0, 1) : "?")@(s.Musteri?.Soyad?.Length > 0 ? s.Musteri.Soyad.Substring(0, 1) : "")
+</div>
                 <div>
                     <div class="lazer-isim">@s.Musteri?.Ad @s.Musteri?.Soyad</div>
                     <div class="lazer-telefon"><i class="fas fa-phone me-1"></i>@s.Musteri?.Telefon</div>
